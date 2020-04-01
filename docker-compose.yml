@@ -1,0 +1,66 @@
+version: '3'
+
+services: 
+    stats:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_USERNAME=user
+            - RABBITMQ_PASSWORD=password
+            - RABBITMQ_NODE_TYPE=stats
+            - RABBITMQ_NODE_NAME=rabbit@stats
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        ports:
+            - '15672:15672'
+        networks:
+            - cluster-network
+        volumes:
+            - 'stats_data:/rabbitmq'
+
+    queue-disc0:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_NODE_TYPE=queue-disc
+            - RABBITMQ_NODE_NAME=rabbit@queue-disc0
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        volumes:
+            - 'disc_data0:/rabbitmq'
+        depends_on: 
+            - stats
+        networks:
+            - cluster-network
+
+    queue-disc1:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_NODE_TYPE=queue-disc
+            - RABBITMQ_NODE_NAME=rabbit@queue-disc1
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        volumes:
+            - 'disc_data1:/rabbitmq'
+        depends_on: 
+            - stats
+            - queue-disc0
+        networks:
+            - cluster-network
+
+    haproxy:
+        image: jpbjesus/haproxy-rabbitmq 
+        ports:
+            - "5672:5672"
+            - "1936:1936"
+        networks:
+            - cluster-network
+            
+networks:
+    cluster-network:
+        external:
+            name: cluster-network
+volumes:
+    stats_data:
+        driver: local
+    disc_data0:
+        driver: local
+    disc_data1:
+        driver: local

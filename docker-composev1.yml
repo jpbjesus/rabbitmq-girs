@@ -60,37 +60,12 @@ services:
             - rabbitmq2
         networks:
             - cluster-network
-    
-    rabbitmq4:
-        image: bitnami/rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq4
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-        volumes:
-            - 'rabbitmq4:/rabbitmq'
-        depends_on: 
-            - stats
-            - rabbitmq1
-            - rabbitmq2
-            - rabbitmq3
-        networks:
-            - cluster-network
 
-    haproxy1:
-        image: jpbjesus/haproxy-rabbitmq-master
-        ports: 
+    haproxy:
+        image: jpbjesus/haproxy-rabbitmq
+        ports:
             - "5672:5672"
             - "1936:1936"
-        networks:
-            - cluster-network
-
-    haproxy2:
-        image: jpbjesus/haproxy-rabbitmq-backup
-        ports:
-            - "5673:5672"
-            - "1937:1936"
         networks:
             - cluster-network
 
@@ -107,6 +82,4 @@ volumes:
     rabbitmq2:
         driver: local
     rabbitmq3:
-        driver: local
-    rabbitmq4:
         driver: local

@@ -40,7 +40,8 @@ stop_keepalived() {
      echo "[INFO] Keepalived terminated." 
 }
 
-HAPROXY_LAUNCH="/usr/local/sbin/haproxy -p /run/haproxy.pid -db -f /usr/local/etc/haproxy/haproxy.cfg -Ds"
+# HAPROXY_LAUNCH="/usr/local/sbin/haproxy -p /run/haproxy.pid -db -f /usr/local/etc/haproxy/haproxy.cfg -Ds"
+HAPROXY_LAUNCH="haproxy -f /usr/local/etc/haproxy/haproxy.cfg"
 start_haproxy() {
     echo "[INFO] HAProxy is starting."
     eval ${HAPROXY_LAUNCH} &
@@ -75,6 +76,13 @@ while true; do
     if [ ! -n "$r_pid" ]; then
         start_rsyslog
     fi
+
+    if [ ! -n "$h_pid" ]; then
+        echo "[ERROR] HAProxy crashed, shutdown all process, exit 1"
+        stop_process
+        break
+    fi
+    sleep 5
 
     if [ ! -n "$k_pid" ]; then
         echo "[ERROR] Keepalived crashed, shutdown all process, exit 1"

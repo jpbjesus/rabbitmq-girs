@@ -25,8 +25,6 @@ services:
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
         volumes:
             - 'rabbitmq1:/rabbitmq'
-        depends_on: 
-            - stats
         networks:
             - cluster-network
 
@@ -39,9 +37,6 @@ services:
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
         volumes:
             - 'rabbitmq2:/rabbitmq'
-        depends_on: 
-            - stats
-            - rabbitmq1
         networks:
             - cluster-network
     
@@ -54,10 +49,6 @@ services:
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
         volumes:
             - 'rabbitmq3:/rabbitmq'
-        depends_on: 
-            - stats
-            - rabbitmq1
-            - rabbitmq2
         networks:
             - cluster-network
     
@@ -70,11 +61,6 @@ services:
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
         volumes:
             - 'rabbitmq4:/rabbitmq'
-        depends_on: 
-            - stats
-            - rabbitmq1
-            - rabbitmq2
-            - rabbitmq3
         networks:
             - cluster-network
 

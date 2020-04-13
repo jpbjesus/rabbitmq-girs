@@ -63,6 +63,30 @@ services:
             - 'rabbitmq4:/rabbitmq'
         networks:
             - cluster-network
+    
+    rabbitmq5:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_NODE_TYPE=queue-disc
+            - RABBITMQ_NODE_NAME=rabbit@rabbitmq5
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        volumes:
+            - 'rabbitmq5:/rabbitmq'
+        networks:
+            - cluster-network
+    
+    rabbitmq6:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_NODE_TYPE=queue-disc
+            - RABBITMQ_NODE_NAME=rabbit@rabbitmq6
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        volumes:
+            - 'rabbitmq6:/rabbitmq'
+        networks:
+            - cluster-network
 
     haproxy1:
         image: jpbjesus/haproxy-rabbitmq-master
@@ -95,4 +119,8 @@ volumes:
     rabbitmq3:
         driver: local
     rabbitmq4:
+        driver: local
+    rabbitmq5:
+        driver: local
+    rabbitmq6:
         driver: local

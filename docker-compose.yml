@@ -1,106 +1,114 @@
+# Available variables: (bitnami/rabbitmq)
+# RABBITMQ_USERNAME: RabbitMQ application username. Default: user
+# RABBITMQ_PASSWORD: RabbitMQ application password. Default: bitnami
+# RABBITMQ_HASHED_PASSWORD: RabbitMQ application hashed password.
+# RABBITMQ_VHOST: RabbitMQ application vhost. Default: /
+# RABBITMQ_ERL_COOKIE: Erlang cookie to determine whether different nodes are allowed to communicate with each other.
+# RABBITMQ_NODE_TYPE: Node Type. Valid values: stats, queue-ram or queue-disc. Default: stats
+# RABBITMQ_NODE_NAME: Node name and host. E.g.: node@hostname or node (localhost won't work in cluster topology). Default rabbit@localhost. If using this variable, ensure that you specify a valid host name as the container wil fail to start otherwise.
+# RABBITMQ_NODE_PORT_NUMBER: Node port. Default: 5672
+# RABBITMQ_CLUSTER_NODE_NAME: Node name to cluster with. E.g.: clusternode@hostname
+# RABBITMQ_CLUSTER_PARTITION_HANDLING: Cluster partition recovery mechanism. Default: ignore
+# RABBITMQ_MANAGER_PORT_NUMBER: Manager port. Default: 15672
+# RABBITMQ_DISK_FREE_LIMIT: Disk free space limit of the partition on which RabbitMQ is storing data. Default: {mem_relative, 1.0}
+# RABBITMQ_ULIMIT_NOFILES: Resources limits: maximum number of open file descriptors. Default: 65536
+# RABBITMQ_ENABLE_LDAP: Enable the LDAP configuration. Defaults to no.
+# RABBITMQ_LDAP_TLS: Enable secure LDAP configuration. Defaults to no.
+# RABBITMQ_LDAP_SERVER: Hostname of the LDAP server. No defaults.
+# RABBITMQ_LDAP_SERVER_PORT: Port of the LDAP server. Defaults to 389.
+# RABBITMQ_LDAP_USER_DN_PATTERN: DN used to bind to LDAP in the form cn=$${username},dc=example,dc=org. No defaults.
+
 version: '3'
 
 services: 
-    stats:
+    rabbitmq-node-0:
         image: bitnami/rabbitmq
         environment:
             - RABBITMQ_USERNAME=user
             - RABBITMQ_PASSWORD=password
             - RABBITMQ_NODE_TYPE=stats
-            - RABBITMQ_NODE_NAME=rabbit@stats
+            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
         ports:
             - '15672:15672'
         networks:
             - cluster-network
         volumes:
-            - 'stats_data:/rabbitmq'
+            - 'persistence-node-0:/rabbitmq'
 
-    rabbitmq1:
+    rabbitmq-node-1:
         image: bitnami/rabbitmq
         environment:
             - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq1
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
+            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-1
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
         volumes:
-            - 'rabbitmq1:/rabbitmq'
-        networks:
-            - cluster-network
-
-    rabbitmq2:
-        image: bitnami/rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq2
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-        volumes:
-            - 'rabbitmq2:/rabbitmq'
-        networks:
-            - cluster-network
-    
-    rabbitmq3:
-        image: bitnami/rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq3
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-        volumes:
-            - 'rabbitmq3:/rabbitmq'
-        networks:
-            - cluster-network
-    
-    rabbitmq4:
-        image: bitnami/rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq4
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-        volumes:
-            - 'rabbitmq4:/rabbitmq'
-        networks:
-            - cluster-network
-    
-    rabbitmq5:
-        image: bitnami/rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq5
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-        volumes:
-            - 'rabbitmq5:/rabbitmq'
-        networks:
-            - cluster-network
-    
-    rabbitmq6:
-        image: bitnami/rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq6
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@stats
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-        volumes:
-            - 'rabbitmq6:/rabbitmq'
+            - 'persistence-node-1:/rabbitmq'
         networks:
             - cluster-network
 
-    haproxy1:
+    rabbitmq-node-2:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_NODE_TYPE=queue-disc
+            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-2
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        volumes:
+            - 'persistence-node-2:/rabbitmq'
+        networks:
+            - cluster-network
+    
+    rabbitmq-node-3:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_NODE_TYPE=queue-disc
+            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-3
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        volumes:
+            - 'persistence-node-3:/rabbitmq'
+        networks:
+            - cluster-network
+    
+    rabbitmq-node-4:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_NODE_TYPE=queue-disc
+            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-4
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        volumes:
+            - 'persistence-node-4:/rabbitmq'
+        networks:
+            - cluster-network
+    
+    rabbitmq-node-5:
+        image: bitnami/rabbitmq
+        environment:
+            - RABBITMQ_NODE_TYPE=queue-disc
+            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-5
+            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        volumes:
+            - 'persistence-node-5:/rabbitmq'
+        networks:
+            - cluster-network
+
+    haproxy-master:
         image: jpbjesus/haproxy-rabbitmq-master
         ports: 
-            - "5672:5672"
-            - "1936:1936"
+            - '5672:5672'
+            - '1936:1936'
         networks:
             - cluster-network
 
-    haproxy2:
+    haproxy-backup:
         image: jpbjesus/haproxy-rabbitmq-backup
         ports:
-            - "5673:5672"
-            - "1937:1936"
+            - '5673:5672'
+            - '1937:1936'
         networks:
             - cluster-network
 
@@ -110,17 +118,15 @@ networks:
             name: cluster-network
 
 volumes:
-    stats_data:
+    persistence-node-0:
         driver: local
-    rabbitmq1:
+    persistence-node-1:
         driver: local
-    rabbitmq2:
+    persistence-node-2:
         driver: local
-    rabbitmq3:
+    persistence-node-3:
         driver: local
-    rabbitmq4:
+    persistence-node-4:
         driver: local
-    rabbitmq5:
-        driver: local
-    rabbitmq6:
+    persistence-node-5:
         driver: local

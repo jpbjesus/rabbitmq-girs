@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker stack rm rabbitmq
+docker stack rm rmq
 docker system prune -a

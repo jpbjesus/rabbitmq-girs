@@ -96,19 +96,29 @@ services:
         networks:
             - cluster-network
 
-    haproxy-master:
-        image: jpbjesus/haproxy-rabbitmq-master
+    # haproxy-master:
+    #     image: jpbjesus/haproxy-rabbitmq-master
+    #     ports: 
+    #         - '5672:5672'
+    #         - '1936:1936'
+    #     networks:
+    #         - cluster-network
+
+    # haproxy-backup:
+    #     image: jpbjesus/haproxy-rabbitmq-backup
+    #     ports:
+    #         - '5673:5672'
+    #         - '1937:1936'
+    #     networks:
+    #         - cluster-network
+
+    haproxy:
+        image: jpbjesus/haproxy
         ports: 
             - '5672:5672'
             - '1936:1936'
-        networks:
-            - cluster-network
-
-    haproxy-backup:
-        image: jpbjesus/haproxy-rabbitmq-backup
-        ports:
-            - '5673:5672'
-            - '1937:1936'
+        deploy:
+            replicas: 2
         networks:
             - cluster-network
 

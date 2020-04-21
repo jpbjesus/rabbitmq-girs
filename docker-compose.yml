@@ -18,7 +18,7 @@
 # RABBITMQ_LDAP_SERVER_PORT: Port of the LDAP server. Defaults to 389.
 # RABBITMQ_LDAP_USER_DN_PATTERN: DN used to bind to LDAP in the form cn=$${username},dc=example,dc=org. No defaults.
 
-version: '3'
+version: '3.8'
 
 services: 
     rabbitmq-node-0:
@@ -96,22 +96,6 @@ services:
         networks:
             - cluster-network
 
-    # haproxy-master:
-    #     image: jpbjesus/haproxy-rabbitmq-master
-    #     ports: 
-    #         - '5672:5672'
-    #         - '1936:1936'
-    #     networks:
-    #         - cluster-network
-
-    # haproxy-backup:
-    #     image: jpbjesus/haproxy-rabbitmq-backup
-    #     ports:
-    #         - '5673:5672'
-    #         - '1937:1936'
-    #     networks:
-    #         - cluster-network
-
     haproxy:
         image: jpbjesus/haproxy
         ports: 
@@ -119,13 +103,21 @@ services:
             - '1936:1936'
         deploy:
             replicas: 2
+        configs:
+            - source: haproxy-config
+              target: /usr/local/etc/haproxy/haproxy.cfg
+              mode: 644
         networks:
             - cluster-network
 
 networks:
     cluster-network:
-        external:
-            name: cluster-network
+        external: true
+        name: cluster-network
+
+configs:
+    haproxy-config:
+        file: haproxy.cfg
 
 volumes:
     persistence-node-0:

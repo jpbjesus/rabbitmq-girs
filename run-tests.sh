@@ -15,6 +15,6 @@ rabbitmq-perf-test-2.11.0/bin/runjava com.rabbitmq.perf.PerfTest -f persistent -
   --queue-pattern 'queue-test-%d' \
   --queue-pattern-from 1 --queue-pattern-to 5 \
   --json-body --size 10000 \
-  --producers 1 --consumers 250 \
-  --producer-random-start-delay 120 \
+  --producers 25 --consumers 25 \
+  --producer-random-start-delay 5 \
   --publishing-interval 5

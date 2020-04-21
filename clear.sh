@@ -1,4 +1,4 @@
 #!/bin/bash
 
 docker stack rm rmq
-docker system prune -a
+# docker system prune -a

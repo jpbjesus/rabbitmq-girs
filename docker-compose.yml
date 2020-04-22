@@ -1,6 +1,6 @@
-# Available variables: (bitnami/rabbitmq)
+# Available variables: (jpbjesus/rabbitmq)
 # RABBITMQ_USERNAME: RabbitMQ application username. Default: user
-# RABBITMQ_PASSWORD: RabbitMQ application password. Default: bitnami
+# RABBITMQ_PASSWORD: RabbitMQ application password. Default: jpbjesus
 # RABBITMQ_HASHED_PASSWORD: RabbitMQ application hashed password.
 # RABBITMQ_VHOST: RabbitMQ application vhost. Default: /
 # RABBITMQ_ERL_COOKIE: Erlang cookie to determine whether different nodes are allowed to communicate with each other.
@@ -18,11 +18,39 @@
 # RABBITMQ_LDAP_SERVER_PORT: Port of the LDAP server. Defaults to 389.
 # RABBITMQ_LDAP_USER_DN_PATTERN: DN used to bind to LDAP in the form cn=$${username},dc=example,dc=org. No defaults.
 
+
+# config location: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
+
 version: '3.8'
 
+networks:
+    cluster-network:
+        external: true
+        name: cluster-network
+
+configs:
+    haproxy-config:
+        file: ./haproxy/haproxy.cfg
+    prometheus-config:
+        file: ./prometheus/prometheus.yml
+
+volumes:
+    persistence-node-0:
+        driver: local
+    persistence-node-1:
+        driver: local
+    persistence-node-2:
+        driver: local
+    persistence-node-3:
+        driver: local
+    persistence-node-4:
+        driver: local
+    persistence-node-5:
+        driver: local
+
 services: 
-    rabbitmq-node-0:
-        image: bitnami/rabbitmq
+    rabbitmq-node-0: &rabbitmq
+        image: jpbjesus/rabbitmq
         environment:
             - RABBITMQ_USERNAME=user
             - RABBITMQ_PASSWORD=password
@@ -30,67 +58,78 @@ services:
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
         ports:
-            - '15672:15672'
+            - '15672:15672' # management plugin 
+            - '15692:15692' # prometheus metrics
         networks:
             - cluster-network
         volumes:
             - 'persistence-node-0:/rabbitmq'
 
     rabbitmq-node-1:
-        image: bitnami/rabbitmq
+        <<: *rabbitmq
         environment:
             - RABBITMQ_NODE_TYPE=queue-disc
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-1
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        ports:
+            - '15693:15692' # prometheus metrics
         volumes:
             - 'persistence-node-1:/rabbitmq'
         networks:
             - cluster-network
 
     rabbitmq-node-2:
-        image: bitnami/rabbitmq
+        <<: *rabbitmq
         environment:
             - RABBITMQ_NODE_TYPE=queue-disc
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-2
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        ports:
+            - '15694:15692' # prometheus metrics
         volumes:
             - 'persistence-node-2:/rabbitmq'
         networks:
             - cluster-network
     
     rabbitmq-node-3:
-        image: bitnami/rabbitmq
+        <<: *rabbitmq
         environment:
             - RABBITMQ_NODE_TYPE=queue-disc
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-3
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        ports:
+            - '15695:15692' # prometheus metrics
         volumes:
             - 'persistence-node-3:/rabbitmq'
         networks:
             - cluster-network
     
     rabbitmq-node-4:
-        image: bitnami/rabbitmq
+        <<: *rabbitmq
         environment:
             - RABBITMQ_NODE_TYPE=queue-disc
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-4
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        ports:
+            - '15696:15692' # prometheus metrics
         volumes:
             - 'persistence-node-4:/rabbitmq'
         networks:
             - cluster-network
     
     rabbitmq-node-5:
-        image: bitnami/rabbitmq
+        <<: *rabbitmq
         environment:
             - RABBITMQ_NODE_TYPE=queue-disc
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-5
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        ports:
+            - '15697:15692' # prometheus metrics
         volumes:
             - 'persistence-node-5:/rabbitmq'
         networks:
@@ -109,26 +148,15 @@ services:
               mode: 644
         networks:
             - cluster-network
-
-networks:
-    cluster-network:
-        external: true
-        name: cluster-network
-
-configs:
-    haproxy-config:
-        file: haproxy.cfg
-
-volumes:
-    persistence-node-0:
-        driver: local
-    persistence-node-1:
-        driver: local
-    persistence-node-2:
-        driver: local
-    persistence-node-3:
-        driver: local
-    persistence-node-4:
-        driver: local
-    persistence-node-5:
-        driver: local
+    
+    prometheus:
+        image: prom/prometheus:latest
+        networks:
+            - cluster-network
+        configs:
+            - source: prometheus-config
+              target: /etc/prometheus/prometheus.yml
+              mode: 644
+        ports:
+            - '9090:9090'
+            

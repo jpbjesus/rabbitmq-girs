@@ -151,20 +151,49 @@ services:
     
     prometheus:
         image: prom/prometheus:latest
+        ports:
+            - '8090:9090'
         networks:
             - cluster-network
         configs:
             - source: prometheus-config
               target: /etc/prometheus/prometheus.yml
               mode: 644
+      
+    grafana:
+        image: jpbjesus/grafana:latest
         ports:
-            - '8090:9090'
+            - '3030:3000'
+        networks:
+            - cluster-network
+        environment:
+            GF_INSTALL_PLUGINS: "flant-statusmap-panel,grafana-piechart-panel"
 
-    # grafana:
-    #     image: jpbjesus/grafana:latest
-    #     networks:
-    #         - cluster-network
-    #     ports:
-    #         - '3030:3000'
-    #     environment:
-    #         GF_INSTALL_PLUGINS: "flant-statusmap-panel,grafana-piechart-panel"
+    cadvisor:
+        image: gcr.io/google-containers/cadvisor:latest
+        ports:
+            - '8081:8080'
+        networks:
+            - cluster-network
+        volumes:
+            - '/:/rootfs:ro' 
+            - '/var/run:/var/run:ro' 
+            - '/sys:/sys:ro' 
+            - '/var/lib/docker/:/var/lib/docker:ro' 
+            - '/dev/disk/:/dev/disk:ro'
+            
+    node-exporter:
+        image: prom/node-exporter:latest
+        ports:
+            - '9100:9100'
+        networks:
+            - cluster-network
+        command:
+            - '--path.procfs=/host/proc'
+            - '--path.rootfs=/rootfs'
+            - '--path.sysfs=/host/sys'
+            - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+        volumes:
+            - '/proc:/host/proc:ro'
+            - '/sys:/host/sys:ro'
+            - '/:/rootfs:ro'			        

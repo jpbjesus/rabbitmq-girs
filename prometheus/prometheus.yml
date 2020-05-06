@@ -45,3 +45,10 @@ scrape_configs:
           # - 'nack:8080'
           - 'unroutable-return:8080'
           - 'unroutable-drop:8080'
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+

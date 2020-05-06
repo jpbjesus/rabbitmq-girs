@@ -42,6 +42,6 @@ scrape_configs:
           - 'greedy-consumer:8080'
           - 'publisher-confirms:8080'
           - 'slow-consumer-persistent:8080'
-          - 'nack:8080'
+          # - 'nack:8080'
           - 'unroutable-return:8080'
           - 'unroutable-drop:8080'

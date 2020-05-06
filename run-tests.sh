@@ -19,4 +19,4 @@
 #   --producer-random-start-delay 5 \
 #   --publishing-interval 5
 
-docker stack deploy --compose-file rabbitmq-perf-test.yml perftest
+docker stack deploy --compose-file rabbitmq-perf-test.yml rmq-perftests

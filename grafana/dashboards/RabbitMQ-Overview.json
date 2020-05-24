@@ -57,7 +57,7 @@
       "title": "Monitoring with Prometheus & Grafana",
       "tooltip": "",
       "type": "link",
-      "url": ""
+      "url": "https://www.rabbitmq.com/prometheus.html"
     }
   ],
   "panels": [

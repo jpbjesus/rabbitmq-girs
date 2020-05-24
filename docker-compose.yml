@@ -18,7 +18,7 @@
 # RABBITMQ_LDAP_SERVER_PORT: Port of the LDAP server. Defaults to 389.
 # RABBITMQ_LDAP_USER_DN_PATTERN: DN used to bind to LDAP in the form cn=$${username},dc=example,dc=org. No defaults.
 
-
+# A custom configuration file can be mounted to the /opt/bitnami/rabbitmq/etc/rabbitmq directory. If no file is mounted, the container will generate one.
 # config location: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
 
 version: '3.8'
@@ -196,4 +196,4 @@ services:
         volumes:
             - '/proc:/host/proc:ro'
             - '/sys:/host/sys:ro'
-            - '/:/rootfs:ro'			        
+            - '/:/rootfs:ro'			    

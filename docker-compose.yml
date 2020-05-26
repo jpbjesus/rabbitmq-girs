@@ -136,7 +136,8 @@ services:
             - cluster-network
 
     haproxy:
-        image: jpbjesus/haproxy
+        # image: jpbjesus/haproxy
+        image: jpbjesus/haproxy-rsyslog
         ports: 
             - '5672:5672'
             - '1936:1936'

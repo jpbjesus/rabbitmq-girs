@@ -24,12 +24,29 @@ stop_haproxy() {
     echo "[INFO] HAProxy terminated."
 }
 
+start_rsyslog() {
+    rsyslogd
+}
+
+stop_rsyslog() {
+    kill -s SIGUSR1 $(pidof rsyslogd) > /dev/null 2>&1
+    echo "[INFO] Rsyslogd terminated."
+}
+
+start_rsyslog
 start_haproxy
 
 sleep 10
 
 while true; do
     h_pid=$(pidof haproxy)
+    r_pid=$(pidof rsyslogd)
+
+    if [ ! -n "$r_pid" ]; then
+        start_rsyslog
+    fi
+
+    tail -f /var/log/haproxy*.log
 
     if [ ! -n "$h_pid" ]; then
         echo "[ERROR] HAProxy crashed, shutdown all process, exit 1"

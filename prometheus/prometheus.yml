@@ -6,7 +6,7 @@ global:
   # https://www.robustperception.io/what-range-should-i-use-with-rate
   scrape_interval: 15s # Default is every 1 minute.
   # scrape_timeout: 10s # Default is 10 seconds.
-  # evaluation_interval: 60s # Default is every 1 minute.
+  evaluation_interval: 60s # Default is every 1 minute.
 
 # Alertmanager configuration
 alerting:
@@ -19,6 +19,7 @@ alerting:
 rule_files:
   # - "first_rules.yml"
   # - "second_rules.yml"
+  - "prometheus_alerting_rules.yml"
 
 scrape_configs:
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.

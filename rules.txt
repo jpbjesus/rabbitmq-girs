@@ -1,0 +1,27 @@
+- Exchange metrics
+    Messages published in	            Messages published to an exchange (as a count and a rate per second)	   
+    Messages published out	            Messages that have left an exchange (as a count and a rate per second)	    
+    Messages unroutable	                Count of messages not routed to a queue	                                    
+
+- Node metrics
+    File descriptors used	            Count of file descriptors used by RabbitMQ processes	                    
+    File descriptors used as sockets	Count of file descriptors used as network sockets by RabbitMQ processes	    
+    Disk space used	                    Bytes of disk used by a RabbitMQ node	                                    
+    Memory used	                        Bytes in RAM used by a RabbitMQ node (categorized by use)	                
+
+- Connection Metrics 
+    Data rates	                        Number of octets sent/received within a TCP connection per second	        
+
+- Queue Metrics
+    Queue depth	                        Count of all messages in the queue	                                       
+    Messages unacknowledged	            Count of messages a queue has delivered without receiving acknowledgment from a consumer	                                                                                                     
+    Messages ready	                    Count of messages available to consumer	                                    
+    Message rates	                    Messages that move in or out of a queue per second, whether unacknowledged, delivered, acknowledged, or redelivered	                                                                                                 
+    Messages persistent	                Count of messages written to disk	                                        
+    Message bytes persistent	        Sum in bytes of messages written to disk	                                
+    Message bytes RAM	                Sum in bytes of messages stored in memory	                               
+    Number of consumers	                Count of consumers for a given queue	                                    
+    Consumer utilization	            Proportion of time that the queue can deliver messages to consumers	      
+
+
+# Metrics Description: https://github.com/rabbitmq/rabbitmq-prometheus/blob/master/metrics.md

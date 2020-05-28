@@ -35,6 +35,8 @@ configs:
         file: ./prometheus/prometheus.yml
     prometheus-alert-config:
         file: ./prometheus/prometheus_alerting_rules.yml
+    prometheus-alertmanager-config:
+        file: ./prometheus/alertmanager/alertmanager.yml
     rabbitmq-config:
         file: ./rabbitmq/rabbitmq.config
 
@@ -195,6 +197,15 @@ services:
             - source: prometheus-alert-config
               target: /etc/prometheus/prometheus_alerting_rules.yml
               mode: 644
+            
+    alertmanager:
+        image: prom/alertmanager:latest
+        ports:
+            - '8093:9093'   
+        deploy:
+            replicas: 1
+        networks:
+            - cluster-network    
       
     grafana:
         image: jpbjesus/grafana:latest

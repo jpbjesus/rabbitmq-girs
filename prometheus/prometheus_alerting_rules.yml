@@ -5,7 +5,7 @@ groups:
       expr: up{job="rabbitmq-server"} == 0
       for: 2m
       labels:
-        severity: page
+        severity: warning
       annotations:
         description: RabbitMQ "{{$labels.instance}}" is down
         summary: RabbitMQ Node "{{$labels.instance}}" Is Down
@@ -20,31 +20,40 @@ groups:
         summary: Some RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
     
     - alert: RabbitMqDiskSpaceLow
-      expr: rabbitmq_disk_space_available_limit_bytes  < 0.2
+      expr: rabbitmq_disk_space_available_limit_bytes == rabbitmq_disk_space_available_limit_bytes*.9
       for: 2m
       labels:
-        severity: warning
+        severity: critical
       annotations:
-        description: RabbitMQ Disk Space Alarm is going off. Disk Space used > 80%
+        description: RabbitMQ Disk Space Alarm is going off. Disk Space used > 90%
         summary: RabbitMQ "{{$labels.instance}}" is Out of Disk Space
 
     - alert: RabbitMqHighMemoryUsage
-        expr: rabbitmq_process_resident_memory_bytes > 0.8
-        for: 3m
-        labels:
-          severity: warning
-        annotations:
-          description: RabbitMQ High Memory Alarm is going off. Memory usage > 80%
-          summary: RabbitMQ is Out of Memory
+      expr: rabbitmq_process_resident_memory_bytes == rabbitmq_resident_memory_limit_bytes*.9   
+      for: 3m
+      labels:
+        severity: critical
+      annotations:
+        description: RabbitMQ High Memory Alarm is going off. Memory usage > 90%
+        summary: RabbitMQ is Out of Memory
 
     - alert: RabbitMqFileDescriptorsMax
-        expr: rabbitmq_process_open_fds > 1024
-        for: 5m
-        labels:
-          severity: warning
-        annotations:
-          description: RabbitMQ File Descriptor Max > 1024
-          summary: Open file descriptors
+      expr: rabbitmq_process_open_fds >= 1024
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        description: RabbitMQ File Descriptor Max > 1024
+        summary: Open file descriptors
+
+    - alert: AllClusterNodesDown
+      expr: sum(up{job="rabbitmq-server"}) by (job) == 0
+      for: 5m
+      labels:
+        severity: page
+      annotations:
+        description: All RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
+        summary: All RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
 
      
 

@@ -1,27 +1,30 @@
 - Exchange metrics
-    Messages published in	            Messages published to an exchange (as a count and a rate per second)	   
-    Messages published out	            Messages that have left an exchange (as a count and a rate per second)	    
-    Messages unroutable	                Count of messages not routed to a queue	                                    
+    Messages published in	            Messages published to an exchange (as a count and a rate per second) - 	rabbitmq_channel_messages_published_total  
+    Messages published out	            Messages that have left an exchange (as a count and a rate per second) - rabbitmq_channel_messages_acked_total   
+    Messages unroutable	                Count of messages not routed to a queue	- rabbitmq_channel_messages_unroutable_dropped_total                                     
 
 - Node metrics
-    File descriptors used	            Count of file descriptors used by RabbitMQ processes	                    
-    File descriptors used as sockets	Count of file descriptors used as network sockets by RabbitMQ processes	    
-    Disk space used	                    Bytes of disk used by a RabbitMQ node	                                    
-    Memory used	                        Bytes in RAM used by a RabbitMQ node (categorized by use)	                
+    File descriptors used	            Count of file descriptors used by RabbitMQ processes - 	rabbitmq_process_open_fds                    
+    File descriptors used as sockets	Count of file descriptors used as network sockets by RabbitMQ processes	- rabbitmq_process_open_tcp_sockets    
+    Disk space used	                    Bytes of disk used by a RabbitMQ node - rabbitmq_disk_space_available_limit_bytes 	                                    
+    Memory used	                        Bytes in RAM used by a RabbitMQ node (categorized by use) - rabbitmq_resident_memory_limit_bytes(limite) / rabbitmq_process_resident_memory_bytes(atual)	                
 
 - Connection Metrics 
-    Data rates	                        Number of octets sent/received within a TCP connection per second	        
+    Data rates	                        Number of octets sent/received within a TCP connection per second	    
+                                            - rabbitmq_connection_incoming_bytes_total
+                                            - rabbitmq_connection_outgoing_bytes_total
+                                            - rabbitmq_connection_pending_packets -> packets que estão há espera de serem enviados na conexão    
 
 - Queue Metrics
-    Queue depth	                        Count of all messages in the queue	                                       
-    Messages unacknowledged	            Count of messages a queue has delivered without receiving acknowledgment from a consumer	                                                                                                     
-    Messages ready	                    Count of messages available to consumer	                                    
-    Message rates	                    Messages that move in or out of a queue per second, whether unacknowledged, delivered, acknowledged, or redelivered	                                                                                                 
-    Messages persistent	                Count of messages written to disk	                                        
-    Message bytes persistent	        Sum in bytes of messages written to disk	                                
-    Message bytes RAM	                Sum in bytes of messages stored in memory	                               
-    Number of consumers	                Count of consumers for a given queue	                                    
-    Consumer utilization	            Proportion of time that the queue can deliver messages to consumers	      
+    Queue depth	                        Count of all messages in the queue - rabbitmq_queue_messages                                    
+    Messages unacknowledged	            Count of messages a queue has delivered without receiving acknowledgment from a consumer - rabbitmq_queue_messages_unacked	                                                                                                     
+    Messages ready	                    Count of messages available to consumer	- rabbitmq_queue_messages_ready                                    
+    Message rates	                    Messages that move in or out of a queue per second, whether unacknowledged, delivered, acknowledged, redelivered - rabbitmq_queue_messages_published_total,                                                                                                  
+    Messages persistent	                Count of messages written to disk	- rabbitmq_queue_messages_persistent                                        
+    Message bytes persistent	        Sum in bytes of messages written to disk - rabbitmq_queue_messages_persistent_bytes  	                                
+    Message bytes RAM	                Sum in bytes of messages stored in memory - rabbitmq_queue_messages_ram_bytes                               
+    Number of consumers	                Count of consumers for a given queue - rabbitmq_queue_consumers	                                    
+    Consumer utilization	            Proportion of time that the queue can deliver messages to consumers	 - rabbitmq_queue_consumer_utilisation	     
 
 
 # Metrics Description: https://github.com/rabbitmq/rabbitmq-prometheus/blob/master/metrics.md

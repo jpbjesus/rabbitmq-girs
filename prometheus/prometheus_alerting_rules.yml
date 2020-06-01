@@ -5,7 +5,7 @@ groups:
       expr: up{job="rabbitmq-server"} == 0
       for: 2m
       labels:
-        severity: critical
+        severity: page
       annotations:
         description: RabbitMQ "{{$labels.instance}}" is down
         summary: RabbitMQ Node "{{$labels.instance}}" Is Down
@@ -19,48 +19,32 @@ groups:
         description: Some RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
         summary: Some RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
     
-    - alert: RabbitMqDiskSpaceAlarm
-      expr: rabbitmq_resident_memory_limit_bytes{job="rabbitmq-server"} == 1
-      for: 1m
+    - alert: RabbitMqDiskSpaceLow
+      expr: rabbitmq_disk_space_available_limit_bytes  < 0.2
+      for: 2m
       labels:
-        severity: critical
+        severity: warning
       annotations:
-        description: RabbitMQ Disk Space Alarm is going off. Which means the node hit highwater mark and has cut off network connectivity, see RabbitMQ WebUI
+        description: RabbitMQ Disk Space Alarm is going off. Disk Space used > 80%
         summary: RabbitMQ "{{$labels.instance}}" is Out of Disk Space
 
+    - alert: RabbitMqHighMemoryUsage
+        expr: rabbitmq_process_resident_memory_bytes > 0.8
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          description: RabbitMQ High Memory Alarm is going off. Memory usage > 80%
+          summary: RabbitMQ is Out of Memory
 
-    # - alert: RabbitMqMemoryAlarm
-    #     expr: rabbitmq_node_mem_alarm{service="{{ template "rabbitmq-ha.fullname" . }}"} == 1
-    #     for: 1m
-    #     labels:
-    #     severity: critical
-    #     annotations:
-    #     description: RabbitMQ High Memory Alarm is going off.  Which means the node hit highwater mark and has cut off network connectivity, see RabbitMQ WebUI
-    #     summary: RabbitMQ is Out of Memory
+    - alert: RabbitMqFileDescriptorsMax
+        expr: rabbitmq_process_open_fds > 1024
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: RabbitMQ File Descriptor Max > 1024
+          summary: Open file descriptors
 
-    # - alert: RabbitMqMemoryUsageHigh
-    #     expr: (rabbitmq_node_mem_used{service="{{ template "rabbitmq-ha.fullname" . }}"} / rabbitmq_node_mem_limit{service="{{ template "rabbitmq-ha.fullname" . }}"}) > .9
-    #     for: 1m
-    #     labels:
-    #     severity: critical
-    #     annotations:
-    #     description: RabbitMQ Memory Usage > 90%
-    #     summary: RabbitMQ Node > 90% Memory Usage
+     
 
-    # - alert: RabbitMqFileDescriptorsLow
-    #     expr: (rabbitmq_fd_used{service="{{ template "rabbitmq-ha.fullname" . }}"} / rabbitmq_fd_total{service="{{ template "rabbitmq-ha.fullname" . }}"}) > .9
-    #     for: 5m
-    #     labels:
-    #     severity: critical
-    #     annotations:
-    #     description: RabbitMQ File Descriptor Usage > 90%
-    #     summary: RabbitMQ Low File Descriptor Available
-
-    # - alert: RabbitMqDiskSpaceLow
-    #     expr: predict_linear(rabbitmq_disk_space_available_bytes{up{job="rabbitmq-server"}}[15m], 1 * 60 * 60) < 1"}
-    #     for: 5m
-    #     labels:
-    #     severity: critical
-    #     annotations:
-    #     description: RabbitMQ will hit disk limit in the next hr based on last 15 mins trend.
-    #     summary: RabbitMQ is Low on Disk Space and will Run Out in the next hour

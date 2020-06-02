@@ -3,57 +3,57 @@ groups:
     rules:
     - alert: RabbitMqClusterNodeDown
       expr: up{job="rabbitmq-server"} == 0
-      for: 2m
+      for: 1m
       labels:
         severity: warning
       annotations:
-        description: RabbitMQ "{{$labels.instance}}" is down
-        summary: RabbitMQ Node "{{$labels.instance}}" Is Down
+        description: 'RabbitMQ {{ $labels.instance }} is down'
+        summary: 'RabbitMQ Node {{ $labels.instance }} Is Down'
     
     - alert: RabbitMqClusterNotAllNodesRunning
       expr: sum(up{job="rabbitmq-server"}) by (job) < 6
-      for: 5m
+      for: 1m
       labels:
         severity: critical
       annotations:
-        description: Some RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
-        summary: Some RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
+        description: 'Some RabbitMQ Cluster Nodes Are Down in Service {{ $labels.instance }}'
+        summary: 'Some RabbitMQ Cluster Nodes Are Down in Service {{ $labels.instance }}'
     
     - alert: RabbitMqDiskSpaceLow
       expr: rabbitmq_disk_space_available_limit_bytes == rabbitmq_disk_space_available_limit_bytes*.9
-      for: 2m
+      for: 1m
       labels:
         severity: critical
       annotations:
-        description: RabbitMQ Disk Space Alarm is going off. Disk Space used > 90%
-        summary: RabbitMQ "{{$labels.instance}}" is Out of Disk Space
+        description: 'RabbitMQ Disk Space Alarm is going off. Disk Space used > 90%'
+        summary: 'RabbitMQ {{ $labels.instance }} is Out of Disk Space'
 
     - alert: RabbitMqHighMemoryUsage
       expr: rabbitmq_process_resident_memory_bytes == rabbitmq_resident_memory_limit_bytes*.9   
-      for: 3m
+      for: 1m
       labels:
         severity: critical
       annotations:
-        description: RabbitMQ High Memory Alarm is going off. Memory usage > 90%
-        summary: RabbitMQ is Out of Memory
+        description: 'RabbitMQ High Memory Alarm is going off. Memory usage > 90%'
+        summary: 'RabbitMQ is Out of Memory'
 
     - alert: RabbitMqFileDescriptorsMax
       expr: rabbitmq_process_open_fds >= 1024
-      for: 5m
+      for: 1m
       labels:
         severity: warning
       annotations:
-        description: RabbitMQ File Descriptor Max > 1024
-        summary: Open file descriptors
+        description: 'RabbitMQ File Descriptor Max > 1024'
+        summary: 'Open file descriptors'
 
     - alert: AllClusterNodesDown
       expr: sum(up{job="rabbitmq-server"}) by (job) == 0
-      for: 5m
+      for: 1m
       labels:
         severity: page
       annotations:
-        description: All RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
-        summary: All RabbitMQ Cluster Nodes Are Down in Service "{{$labels.instance}}"
+        description: 'All RabbitMQ Cluster Nodes Are Down in Service {{ $labels.instance }}'
+        summary: 'All RabbitMQ Cluster Nodes Are Down in Service {{ $labels.instance }}'
 
      
 

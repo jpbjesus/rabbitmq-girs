@@ -210,9 +210,13 @@ services:
             - '8093:9093'   
         deploy:
             replicas: 1
+        configs:
+            - source: prometheus-alertmanager-config
+              target: /etc/alertmanager/alertmanager.yml
+              mode: 644    
         networks:
             - cluster-network    
-      
+            
     grafana:
         image: jpbjesus/grafana:latest
         ports:

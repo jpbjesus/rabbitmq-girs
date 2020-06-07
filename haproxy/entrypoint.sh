@@ -46,7 +46,7 @@ while true; do
         start_rsyslog
     fi
 
-    # tail -f /var/log/haproxy*.log &
+    tail -f /var/log/haproxy*.log &
 
     if [ ! -n "$h_pid" ]; then
         echo "[ERROR] HAProxy crashed, shutdown all process, exit 1"

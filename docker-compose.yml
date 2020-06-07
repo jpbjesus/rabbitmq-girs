@@ -57,7 +57,7 @@ services:
             - RABBITMQ_NODE_TYPE=stats
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
         ports:
             - '15672:15672' # management plugin 
             - '15692:15692' # prometheus metrics
@@ -77,7 +77,7 @@ services:
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-1
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
         ports:
             - '15693:15692' # prometheus metrics
         ulimits:
@@ -100,7 +100,7 @@ services:
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-2
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
         ports:
             - '15694:15692' # prometheus metrics
         ulimits:
@@ -123,7 +123,7 @@ services:
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-3
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
         ports:
             - '15695:15692' # prometheus metrics
         ulimits:
@@ -146,7 +146,7 @@ services:
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-4
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
         ports:
             - '15696:15692' # prometheus metrics
         ulimits:
@@ -169,7 +169,7 @@ services:
             - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-5
             - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
             - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
         ports:
             - '15697:15692' # prometheus metrics
         ulimits:
@@ -198,7 +198,7 @@ services:
         networks:
             - cluster-network
         labels:
-            com.docker.stack.namespace: "rmq"
+            com.docker.stack.namespace: "rabbitmq-cluster"
             com.docker.service.name: "haproxy"
         deploy:
             mode: replicated
@@ -210,5 +210,5 @@ services:
                 condition: on-failure
                 max_attempts: 5
             labels:
-                com.docker.stack.namespace: "rabbitmq"
+                com.docker.stack.namespace: "rabbitmq-cluster"
                 com.docker.service.name: "haproxy"

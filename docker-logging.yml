@@ -1,101 +1,88 @@
 version: '3.8'
 
-configs:
-  elastic_config:
-    file: ./elk/elasticsearch/config/elasticsearch.yml
-  logstash_config:
-    file: ./elk/logstash/config/logstash.yml
-  logstash_pipeline:
-    file: ./elk/logstash/pipeline/logstash.conf
-  kibana_config:
-    file: ./elk/kibana/config/kibana.yml
-
 networks:
-  cluster-network:
-    external: true
-    name: cluster-network
-    
+    cluster-network:
+        external: true
+        name: cluster-network
+
+configs:
+    filebeat-config:
+        file: ./filebeat.yml
+
+volumes:
+    elasticsearch_data:
+
 services:
-  logstash:
-    image: logstash:7.7.1
-    ports:
-        - '9600:9600'
-        - '5000:5000'
-    configs:
-        - source: logstash_config
-          target: /usr/share/logstash/config/logstash.yml
-        - source: logstash_pipeline
-          target: /usr/share/logstash/pipeline/logstash.conf
-    environment:
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    networks:
-      - cluster-network
-    labels:
-      com.docker.stack.namespace: "rmq-logging"
-      com.docker.service.name: "logstash"
-    deploy:
-        mode: replicated
-        update_config:
-          parallelism: 1
-          delay: 60s
-        restart_policy:
-          condition: none
-          max_attempts: 5
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.7.1
+        networks:
+            - cluster-network
+        environment:
+            - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+            - "discovery.type=single-node"
+        ports:
+            - '9200:9200'
+        volumes:
+            - elasticsearch_data:/usr/share/elasticsearch/data
         labels:
-          com.docker.stack.namespace: "rmq-logging"
-          com.docker.service.name: "logstash"
-  
-  elasticsearch:
-    image: elasticsearch:7.7.1
-    ports:
-      - '9200:9200'
-      - '9300:9300'
-    configs:
-      - source: elastic_config
-        target: /usr/share/elasticsearch/config/elasticsearch.yml
-    environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
-      ELASTIC_PASSWORD: changeme
-      # Use single node discovery in order to disable production mode and avoid bootstrap checks
-      # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
-      discovery.type: single-node
-    networks:
-      - cluster-network
-    labels:
-      com.docker.stack.namespace: "rmq-logging"
-      com.docker.service.name: "elasticsearch"
-    deploy:
-        mode: replicated
-        update_config:
-          parallelism: 1
-          delay: 60s
-        restart_policy:
-          condition: none
-          max_attempts: 5
+            com.docker.stack.namespace: "rmq-logging"
+            com.docker.service.name: "elasticsearch"
+        deploy:
+            mode: replicated
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: none
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rmq-logging"
+                com.docker.service.name: "elasticsearch"
+
+    kibana:
+        image: docker.elastic.co/kibana/kibana:7.7.1
+        networks:
+            - cluster-network
+        ports:
+            - '5601:5601'
         labels:
-          com.docker.stack.namespace: "rmq-logging"
-          com.docker.service.name: "elasticsearch"
-  
-  kibana:
-    image: kibana:7.7.1
-    ports:
-      - '5601:5601'
-    configs:
-      - source: kibana_config
-        target: /usr/share/kibana/config/kibana.yml
-    networks:
-      - cluster-network
-    labels:
-      com.docker.stack.namespace: "rmq-logging"
-      com.docker.service.name: "kibana"
-    deploy:
-        mode: replicated
-        update_config:
-          parallelism: 1
-          delay: 60s
-        restart_policy:
-          condition: none
-          max_attempts: 5
+            com.docker.stack.namespace: "rmq-logging"
+            com.docker.service.name: "kibana"
+        deploy:
+            mode: replicated
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: none
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rmq-logging"
+                com.docker.service.name: "kibana"    
+
+    filebeat:
+        image: docker.elastic.co/beats/filebeat:7.7.1
+        networks:
+            - cluster-network
+        configs:
+            - source: filebeat-config
+              target: /usr/share/filebeat/filebeat.yml
+              mode: 644
+        user: root
+        volumes:
+            - /var/lib/docker:/var/lib/docker:ro
+            - /var/run/docker.sock:/var/run/docker.sock
         labels:
-          com.docker.stack.namespace: "rmq-logging"
-          com.docker.service.name: "kibana"
+            com.docker.stack.namespace: "rmq-logging"
+            com.docker.service.name: "filebeat"
+        deploy:
+            mode: replicated
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: none
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rmq-logging"
+                com.docker.service.name: "filebeat"

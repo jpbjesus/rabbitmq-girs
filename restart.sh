@@ -1,7 +1,7 @@
 #!/bin/sh
 
-stop.sh
+sh ./stop.sh
 
 sleep 5
 
-start.sh
+sh ./start.sh

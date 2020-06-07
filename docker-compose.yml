@@ -31,12 +31,6 @@ networks:
 configs:
     haproxy-config:
         file: ./haproxy/haproxy.cfg
-    prometheus-config:
-        file: ./prometheus/prometheus.yml
-    prometheus-alert-config:
-        file: ./prometheus/prometheus_alerting_rules.yml
-    prometheus-alertmanager-config:
-        file: ./prometheus/alertmanager/alertmanager.yml
     rabbitmq-config:
         file: ./rabbitmq/rabbitmq.config
 
@@ -113,6 +107,10 @@ services:
             nofile:
                 soft: 65536
                 hard: 65536
+        # configs:
+        #     - source: rabbitmq-config
+        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
+        #       mode: 644
         volumes:
             - 'persistence-node-2:/rabbitmq'
         networks:
@@ -132,6 +130,10 @@ services:
             nofile:
                 soft: 65536
                 hard: 65536
+        # configs:
+        #     - source: rabbitmq-config
+        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
+        #       mode: 644
         volumes:
             - 'persistence-node-3:/rabbitmq'
         networks:
@@ -151,6 +153,10 @@ services:
             nofile:
                 soft: 65536
                 hard: 65536
+        # configs:
+        #     - source: rabbitmq-config
+        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
+        #       mode: 644
         volumes:
             - 'persistence-node-4:/rabbitmq'
         networks:
@@ -170,6 +176,10 @@ services:
             nofile:
                 soft: 65536
                 hard: 65536
+        # configs:
+        #     - source: rabbitmq-config
+        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
+        #       mode: 644
         volumes:
             - 'persistence-node-5:/rabbitmq'
         networks:
@@ -181,76 +191,24 @@ services:
         ports: 
             - '5672:5672'
             - '1936:1936'
-        deploy:
-            replicas: 2
         configs:
             - source: haproxy-config
               target: /usr/local/etc/haproxy/haproxy.cfg
               mode: 644
         networks:
             - cluster-network
-    
-    prometheus:
-        image: prom/prometheus:latest
-        ports:
-            - '8090:9090'
-        networks:
-            - cluster-network
-        configs:
-            - source: prometheus-config
-              target: /etc/prometheus/prometheus.yml
-              mode: 644
-            - source: prometheus-alert-config
-              target: /etc/prometheus/prometheus_alerting_rules.yml
-              mode: 644
-            
-    alertmanager:
-        image: prom/alertmanager:latest
-        ports:
-            - '8093:9093'   
+        labels:
+            com.docker.stack.namespace: "rmq"
+            com.docker.service.name: "haproxy"
         deploy:
-            replicas: 1
-        configs:
-            - source: prometheus-alertmanager-config
-              target: /etc/alertmanager/alertmanager.yml
-              mode: 644    
-        networks:
-            - cluster-network    
-            
-    grafana:
-        image: jpbjesus/grafana:latest
-        ports:
-            - '3030:3000'
-        networks:
-            - cluster-network
-        environment:
-            GF_INSTALL_PLUGINS: "flant-statusmap-panel,grafana-piechart-panel"
-
-    cadvisor:
-        image: gcr.io/google-containers/cadvisor:latest
-        ports:
-            - '8081:8080'
-        networks:
-            - cluster-network
-        volumes:
-            - '/:/rootfs:ro' 
-            - '/var/run:/var/run:ro' 
-            - '/sys:/sys:ro' 
-            - '/var/lib/docker/:/var/lib/docker:ro' 
-            - '/dev/disk/:/dev/disk:ro'
-            
-    node-exporter:
-        image: prom/node-exporter:latest
-        ports:
-            - '9100:9100'
-        networks:
-            - cluster-network
-        command:
-            - '--path.procfs=/host/proc'
-            - '--path.rootfs=/rootfs'
-            - '--path.sysfs=/host/sys'
-            - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-        volumes:
-            - '/proc:/host/proc:ro'
-            - '/sys:/host/sys:ro'
-            - '/:/rootfs:ro'			    
+            mode: replicated
+            replicas: 2
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rabbitmq"
+                com.docker.service.name: "haproxy"

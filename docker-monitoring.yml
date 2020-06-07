@@ -1,0 +1,157 @@
+version: '3.8'
+
+networks:
+    cluster-network:
+        external: true
+        name: cluster-network
+
+configs:
+    prometheus-config:
+        file: ./prometheus/prometheus.yml
+    prometheus-alert-config:
+        file: ./prometheus/prometheus_alerting_rules.yml
+    prometheus-alertmanager-config:
+        file: ./prometheus/alertmanager/alertmanager.yml
+
+services: 
+    prometheus:
+        image: prom/prometheus:latest
+        ports:
+            - '8090:9090'
+        networks:
+            - cluster-network
+        configs:
+            - source: prometheus-config
+              target: /etc/prometheus/prometheus.yml
+              mode: 644
+            - source: prometheus-alert-config
+              target: /etc/prometheus/prometheus_alerting_rules.yml
+              mode: 644
+        labels:
+            com.docker.stack.namespace: "rmq-monitoring"
+            com.docker.service.name: "prometheus"
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rmq-monitoring"
+                com.docker.service.name: "prometheus"
+            
+    alertmanager:
+        image: prom/alertmanager:latest
+        ports:
+            - '8093:9093'   
+        deploy:
+            replicas: 1
+        configs:
+            - source: prometheus-alertmanager-config
+              target: /etc/alertmanager/alertmanager.yml
+              mode: 644    
+        networks:
+            - cluster-network    
+        labels:
+            com.docker.stack.namespace: "rmq-monitoring"
+            com.docker.service.name: "alertmanager"
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rmq-monitoring"
+                com.docker.service.name: "alertmanager"
+            
+    grafana:
+        image: jpbjesus/grafana:latest
+        ports:
+            - '3030:3000'
+        networks:
+            - cluster-network
+        environment:
+            GF_INSTALL_PLUGINS: "flant-statusmap-panel,grafana-piechart-panel"
+        labels:
+            com.docker.stack.namespace: "rmq-monitoring"
+            com.docker.service.name: "grafana"
+        deploy:
+            mode: replicated
+            replicas: 1
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rmq-monitoring"
+                com.docker.service.name: "grafana"
+
+    cadvisor:
+        image: gcr.io/google-containers/cadvisor:latest
+        ports:
+            - '8081:8080'
+        networks:
+            - cluster-network
+        volumes:
+            - '/:/rootfs:ro' 
+            - '/var/run:/var/run:ro' 
+            - '/sys:/sys:ro' 
+            - '/var/lib/docker/:/var/lib/docker:ro' 
+            - '/dev/disk/:/dev/disk:ro'
+        labels:
+            com.docker.stack.namespace: "rmq-monitoring"
+            com.docker.service.name: "cadvisor"
+        deploy:
+            mode: global
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rmq-monitoring"
+                com.docker.service.name: "cadvisor"
+            
+    node-exporter:
+        image: prom/node-exporter:latest
+        ports:
+            - '9100:9100'
+        networks:
+            - cluster-network
+        command:
+            - '--path.procfs=/host/proc'
+            - '--path.rootfs=/rootfs'
+            - '--path.sysfs=/host/sys'
+            - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+        volumes:
+            - '/proc:/host/proc:ro'
+            - '/sys:/host/sys:ro'
+            - '/:/rootfs:ro'		
+        labels:
+            com.docker.stack.namespace: "rmq-monitoring"
+            com.docker.service.name: "node-exporter"
+        deploy:
+            mode: global
+            resources:
+                limits:
+                    cpus: '0.10'
+                    memory: 32M           
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rmq-monitoring"
+                com.docker.service.name: "node-exporter" 	    

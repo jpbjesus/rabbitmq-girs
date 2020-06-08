@@ -55,7 +55,7 @@ scrape_configs:
           - 'unroutable-drop:8080'
   - job_name: 'cadvisor'
     static_configs:
-      - targets: ['cadvisor:8080']
+      - targets: ['10.2.0.1:8081']
   - job_name: 'node-exporter'
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ['10.2.0.1:9100']

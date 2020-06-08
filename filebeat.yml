@@ -10,7 +10,7 @@ processors:
         target: 'json'
         overwrite_keys: true
 output.elasticsearch:
-    hosts: ['elasticsearch:9200']
+    hosts: ['10.5.0.6:9200']
     indices:
         - index: 'filebeat-%{[agent.version]}-%{+yyyy.MM.dd}'
 logging.json: true

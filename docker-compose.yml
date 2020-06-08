@@ -92,6 +92,21 @@ services:
             - 'persistence-node-1:/rabbitmq'
         networks:
             - cluster-network
+        labels:
+            com.docker.stack.namespace: "rabbitmq-cluster"
+            com.docker.service.name: "rabbitmq-node-1"
+        deploy:
+            mode: replicated
+            replicas: 2
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rabbitmq-cluster"
+                com.docker.service.name: "rabbitmq-node-1"
 
     rabbitmq-node-2:
         <<: *rabbitmq
@@ -115,6 +130,21 @@ services:
             - 'persistence-node-2:/rabbitmq'
         networks:
             - cluster-network
+        labels:
+            com.docker.stack.namespace: "rabbitmq-cluster"
+            com.docker.service.name: "rabbitmq-node-2"
+        deploy:
+            mode: replicated
+            replicas: 2
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rabbitmq-cluster"
+                com.docker.service.name: "rabbitmq-node-2"
     
     rabbitmq-node-3:
         <<: *rabbitmq
@@ -138,6 +168,21 @@ services:
             - 'persistence-node-3:/rabbitmq'
         networks:
             - cluster-network
+        labels:
+            com.docker.stack.namespace: "rabbitmq-cluster"
+            com.docker.service.name: "rabbitmq-node-3"
+        deploy:
+            mode: replicated
+            replicas: 2
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rabbitmq-cluster"
+                com.docker.service.name: "rabbitmq-node-3"
     
     rabbitmq-node-4:
         <<: *rabbitmq
@@ -161,6 +206,21 @@ services:
             - 'persistence-node-4:/rabbitmq'
         networks:
             - cluster-network
+        labels:
+            com.docker.stack.namespace: "rabbitmq-cluster"
+            com.docker.service.name: "rabbitmq-node-4"
+        deploy:
+            mode: replicated
+            replicas: 2
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rabbitmq-cluster"
+                com.docker.service.name: "rabbitmq-node-4"
     
     rabbitmq-node-5:
         <<: *rabbitmq
@@ -184,8 +244,23 @@ services:
             - 'persistence-node-5:/rabbitmq'
         networks:
             - cluster-network
+        labels:
+            com.docker.stack.namespace: "rabbitmq-cluster"
+            com.docker.service.name: "rabbitmq-node-5"
+        deploy:
+            mode: replicated
+            replicas: 2
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rabbitmq-cluster"
+                com.docker.service.name: "rabbitmq-node-5"
 
-    haproxy:
+    rmq-node-5:
         # image: jpbjesus/haproxy
         image: jpbjesus/haproxy-rsyslog
         ports: 
@@ -212,3 +287,30 @@ services:
             labels:
                 com.docker.stack.namespace: "rabbitmq-cluster"
                 com.docker.service.name: "haproxy"
+    
+    filebeat:
+        image: docker.elastic.co/beats/filebeat:7.7.1
+        networks:
+            - cluster-network
+        configs:
+            - source: filebeat-config
+              target: /usr/share/filebeat/filebeat.yml
+              mode: 644
+        user: root
+        volumes:
+            - /var/lib/docker:/var/lib/docker:ro
+            - /var/run/docker.sock:/var/run/docker.sock
+        labels:
+            com.docker.stack.namespace: "rabbitmq-cluster"
+            com.docker.service.name: "filebeat"
+        deploy:
+            mode: replicated
+            update_config:
+                parallelism: 1
+                delay: 60s
+            restart_policy:
+                condition: none
+                max_attempts: 5
+            labels:
+                com.docker.stack.namespace: "rabbitmq-cluster"
+                com.docker.service.name: "filebeat"

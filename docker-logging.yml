@@ -58,31 +58,4 @@ services:
                 max_attempts: 5
             labels:
                 com.docker.stack.namespace: "rmq-logging"
-                com.docker.service.name: "kibana"    
-
-    filebeat:
-        image: docker.elastic.co/beats/filebeat:7.7.1
-        networks:
-            - cluster-network
-        configs:
-            - source: filebeat-config
-              target: /usr/share/filebeat/filebeat.yml
-              mode: 644
-        user: root
-        volumes:
-            - /var/lib/docker:/var/lib/docker:ro
-            - /var/run/docker.sock:/var/run/docker.sock
-        labels:
-            com.docker.stack.namespace: "rmq-logging"
-            com.docker.service.name: "filebeat"
-        deploy:
-            mode: replicated
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: none
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rmq-logging"
-                com.docker.service.name: "filebeat"
+                com.docker.service.name: "kibana"

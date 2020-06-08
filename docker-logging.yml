@@ -4,11 +4,7 @@ networks:
     cluster-network:
         external: true
         name: cluster-network
-
-configs:
-    filebeat-config:
-        file: ./filebeat.yml
-
+    
 volumes:
     elasticsearch_data:
 

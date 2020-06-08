@@ -33,6 +33,8 @@ configs:
         file: ./haproxy/haproxy.cfg
     rabbitmq-config:
         file: ./rabbitmq/rabbitmq.config
+    filebeat-config:
+        file: ./filebeat.yml
 
 volumes:
     persistence-node-0:
@@ -74,7 +76,7 @@ services:
             com.docker.service.name: "rabbitmq-node-0"
         deploy:
             mode: replicated
-            replicas: 2
+            replicas: 1
             update_config:
                 parallelism: 1
                 delay: 60s
@@ -112,7 +114,7 @@ services:
             com.docker.service.name: "rabbitmq-node-1"
         deploy:
             mode: replicated
-            replicas: 2
+            replicas: 1
             update_config:
                 parallelism: 1
                 delay: 60s
@@ -150,7 +152,7 @@ services:
             com.docker.service.name: "rabbitmq-node-2"
         deploy:
             mode: replicated
-            replicas: 2
+            replicas: 1
             update_config:
                 parallelism: 1
                 delay: 60s
@@ -188,7 +190,7 @@ services:
             com.docker.service.name: "rabbitmq-node-3"
         deploy:
             mode: replicated
-            replicas: 2
+            replicas: 1
             update_config:
                 parallelism: 1
                 delay: 60s
@@ -226,7 +228,7 @@ services:
             com.docker.service.name: "rabbitmq-node-4"
         deploy:
             mode: replicated
-            replicas: 2
+            replicas: 1
             update_config:
                 parallelism: 1
                 delay: 60s
@@ -264,7 +266,7 @@ services:
             com.docker.service.name: "rabbitmq-node-5"
         deploy:
             mode: replicated
-            replicas: 2
+            replicas: 1
             update_config:
                 parallelism: 1
                 delay: 60s
@@ -330,63 +332,63 @@ services:
                 com.docker.stack.namespace: "rabbitmq-cluster"
                 com.docker.service.name: "filebeat"
     
-    cadvisor:
-        image: gcr.io/google-containers/cadvisor:latest
-        ports:
-            - '8081:8080'
-        networks:
-            - cluster-network
-        volumes:
-            - '/:/rootfs:ro' 
-            - '/var/run:/var/run:ro' 
-            - '/sys:/sys:ro' 
-            - '/var/lib/docker/:/var/lib/docker:ro' 
-            - '/dev/disk/:/dev/disk:ro'
-        labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "cadvisor"
-        deploy:
-            mode: global
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "cadvisor"
+    # cadvisor:
+    #     image: gcr.io/google-containers/cadvisor:latest
+    #     ports:
+    #         - '8081:8080'
+    #     networks:
+    #         - cluster-network
+    #     volumes:
+    #         - '/:/rootfs:ro' 
+    #         - '/var/run:/var/run:ro' 
+    #         - '/sys:/sys:ro' 
+    #         - '/var/lib/docker/:/var/lib/docker:ro' 
+    #         - '/dev/disk/:/dev/disk:ro'
+    #     labels:
+    #         com.docker.stack.namespace: "rabbitmq-cluster"
+    #         com.docker.service.name: "cadvisor"
+    #     deploy:
+    #         mode: global
+    #         update_config:
+    #             parallelism: 1
+    #             delay: 60s
+    #         restart_policy:
+    #             condition: on-failure
+    #             max_attempts: 5
+    #         labels:
+    #             com.docker.stack.namespace: "rabbitmq-cluster"
+    #             com.docker.service.name: "cadvisor"
             
-    node-exporter:
-        image: prom/node-exporter:latest
-        ports:
-            - '9100:9100'
-        networks:
-            - cluster-network
-        command:
-            - '--path.procfs=/host/proc'
-            - '--path.rootfs=/rootfs'
-            - '--path.sysfs=/host/sys'
-            - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-        volumes:
-            - '/proc:/host/proc:ro'
-            - '/sys:/host/sys:ro'
-            - '/:/rootfs:ro'		
-        labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "node-exporter"
-        deploy:
-            mode: global
-            resources:
-                limits:
-                    cpus: '0.10'
-                    memory: 32M           
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "node-exporter" 	   
+    # node-exporter:
+    #     image: prom/node-exporter:latest
+    #     ports:
+    #         - '9100:9100'
+    #     networks:
+    #         - cluster-network
+    #     command:
+    #         - '--path.procfs=/host/proc'
+    #         - '--path.rootfs=/rootfs'
+    #         - '--path.sysfs=/host/sys'
+    #         - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    #     volumes:
+    #         - '/proc:/host/proc:ro'
+    #         - '/sys:/host/sys:ro'
+    #         - '/:/rootfs:ro'		
+    #     labels:
+    #         com.docker.stack.namespace: "rabbitmq-cluster"
+    #         com.docker.service.name: "node-exporter"
+    #     deploy:
+    #         mode: global
+    #         resources:
+    #             limits:
+    #                 cpus: '0.10'
+    #                 memory: 32M           
+    #         update_config:
+    #             parallelism: 1
+    #             delay: 60s
+    #         restart_policy:
+    #             condition: on-failure
+    #             max_attempts: 5
+    #         labels:
+    #             com.docker.stack.namespace: "rabbitmq-cluster"
+    #             com.docker.service.name: "node-exporter" 	   

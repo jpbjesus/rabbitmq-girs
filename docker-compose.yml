@@ -24,371 +24,514 @@
 version: '3.8'
 
 networks:
-    cluster-network:
-        external: true
-        name: cluster-network
+  cluster-network:
+    external: true
+    name: cluster-network
 
 configs:
-    haproxy-config:
-        file: ./haproxy/haproxy.cfg
-    rabbitmq-config:
-        file: ./rabbitmq/rabbitmq.config
-    filebeat-config:
-        file: ./filebeat.yml
+  haproxy-config:
+      file: ./haproxy/haproxy.cfg
+  rabbitmq-config:
+      file: ./rabbitmq/rabbitmq.config
+  # filebeat-config:
+  #     file: ./filebeat.yml
 
 volumes:
-    persistence-node-0:
-        driver: local
-    persistence-node-1:
-        driver: local
-    persistence-node-2:
-        driver: local
-    persistence-node-3:
-        driver: local
-    persistence-node-4:
-        driver: local
-    persistence-node-5:
-        driver: local
+  persistence-node-0:
+    driver: local
+  persistence-node-1:
+    driver: local
+  persistence-node-2:
+    driver: local
+  persistence-node-3:
+    driver: local
+  persistence-node-4:
+    driver: local
+  persistence-node-5:
+    driver: local
 
 services: 
-    rabbitmq-node-0: &rabbitmq
-        image: jpbjesus/rabbitmq
-        environment:
-            - RABBITMQ_USERNAME=user
-            - RABBITMQ_PASSWORD=password
-            - RABBITMQ_NODE_TYPE=stats
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-0
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
-        ports:
-            - '15672:15672' # management plugin 
-            - '15692:15692' # prometheus metrics
-        ulimits:
-            nofile:
-                soft: 65536
-                hard: 65536
-        networks:
-            - cluster-network
-        volumes:
-            - 'persistence-node-0:/rabbitmq'
-        labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "rabbitmq-node-0"
-        deploy:
-            mode: replicated
-            replicas: 1
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "rabbitmq-node-0"
+  rabbitmq-node-0: &rabbitmq
+    image: jpbjesus/rabbitmq
+    environment:
+      - RABBITMQ_USERNAME=user
+      - RABBITMQ_PASSWORD=password
+      - RABBITMQ_NODE_TYPE=stats
+      - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-0
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+    ports:
+      - '15672:15672' # management plugin 
+      - '15692:15692' # prometheus metrics
+    networks:
+      - cluster-network
+    volumes:
+      - 'persistence-node-0:/rabbitmq'
+    labels:
+      com.docker.stack.namespace: "rabbitmq-cluster"
+      com.docker.service.name: "rabbitmq-node-0"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute202
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "rabbitmq-cluster"
+        com.docker.service.name: "rabbitmq-node-0"
 
-    rabbitmq-node-1:
-        <<: *rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-1
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
-        ports:
-            - '15693:15692' # prometheus metrics
-        ulimits:
-            nofile:
-                soft: 65536
-                hard: 65536
-        # configs:
-        #     - source: rabbitmq-config
-        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
-        #       mode: 644
-        volumes:
-            - 'persistence-node-1:/rabbitmq'
-        networks:
-            - cluster-network
-        labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "rabbitmq-node-1"
-        deploy:
-            mode: replicated
-            replicas: 1
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "rabbitmq-node-1"
+  rabbitmq-node-1:
+    <<: *rabbitmq
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-disc
+      - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-1
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+    ports:
+      - '15693:15692' # prometheus metrics
+    volumes:
+      - 'persistence-node-1:/rabbitmq'
+    networks:
+      - cluster-network
+    labels:
+      com.docker.stack.namespace: "rabbitmq-cluster"
+      com.docker.service.name: "rabbitmq-node-1"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute203
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "rabbitmq-cluster"
+        com.docker.service.name: "rabbitmq-node-1"
 
-    rabbitmq-node-2:
-        <<: *rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-2
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
-        ports:
-            - '15694:15692' # prometheus metrics
-        ulimits:
-            nofile:
-                soft: 65536
-                hard: 65536
-        # configs:
-        #     - source: rabbitmq-config
-        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
-        #       mode: 644
-        volumes:
-            - 'persistence-node-2:/rabbitmq'
-        networks:
-            - cluster-network
-        labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "rabbitmq-node-2"
-        deploy:
-            mode: replicated
-            replicas: 1
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "rabbitmq-node-2"
-    
-    rabbitmq-node-3:
-        <<: *rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-3
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
-        ports:
-            - '15695:15692' # prometheus metrics
-        ulimits:
-            nofile:
-                soft: 65536
-                hard: 65536
-        # configs:
-        #     - source: rabbitmq-config
-        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
-        #       mode: 644
-        volumes:
-            - 'persistence-node-3:/rabbitmq'
-        networks:
-            - cluster-network
-        labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "rabbitmq-node-3"
-        deploy:
-            mode: replicated
-            replicas: 1
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "rabbitmq-node-3"
-    
-    rabbitmq-node-4:
-        <<: *rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-4
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
-        ports:
-            - '15696:15692' # prometheus metrics
-        ulimits:
-            nofile:
-                soft: 65536
-                hard: 65536
-        # configs:
-        #     - source: rabbitmq-config
-        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
-        #       mode: 644
-        volumes:
-            - 'persistence-node-4:/rabbitmq'
-        networks:
-            - cluster-network
-        labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "rabbitmq-node-4"
-        deploy:
-            mode: replicated
-            replicas: 1
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "rabbitmq-node-4"
-    
-    rabbitmq-node-5:
-        <<: *rabbitmq
-        environment:
-            - RABBITMQ_NODE_TYPE=queue-disc
-            - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-5
-            - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
-            - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
-            # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
-        ports:
-            - '15697:15692' # prometheus metrics
-        ulimits:
-            nofile:
-                soft: 65536
-                hard: 65536
-        # configs:
-        #     - source: rabbitmq-config
-        #       target: /opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.config
-        #       mode: 644
-        volumes:
-            - 'persistence-node-5:/rabbitmq'
-        networks:
-            - cluster-network
-        labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "rabbitmq-node-5"
-        deploy:
-            mode: replicated
-            replicas: 1
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "rabbitmq-node-5"
+  rabbitmq-node-2:
+    <<: *rabbitmq
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-disc
+      - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-2
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+    ports:
+      - '15694:15692' # prometheus metrics
+    volumes:
+      - 'persistence-node-2:/rabbitmq'
+    networks:
+      - cluster-network
+    labels:
+      com.docker.stack.namespace: "rabbitmq-cluster"
+      com.docker.service.name: "rabbitmq-node-2"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute204
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "rabbitmq-cluster"
+        com.docker.service.name: "rabbitmq-node-2"
+  
+  rabbitmq-node-3:
+    <<: *rabbitmq
+    environment:
+      - RABBITMQ_NODE_TYPE=queue-disc
+      - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-3
+      - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+      - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+      # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+    ports:
+      - '15695:15692' # prometheus metrics
+    volumes:
+      - 'persistence-node-3:/rabbitmq'
+    networks:
+      - cluster-network
+    labels:
+      com.docker.stack.namespace: "rabbitmq-cluster"
+      com.docker.service.name: "rabbitmq-node-3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute205
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "rabbitmq-cluster"
+        com.docker.service.name: "rabbitmq-node-3"
 
-    haproxy:
-        # image: jpbjesus/haproxy
-        image: jpbjesus/haproxy-rsyslog
-        ports: 
-            - '5672:5672'
-            - '1936:1936'
-        configs:
-            - source: haproxy-config
-              target: /usr/local/etc/haproxy/haproxy.cfg
-              mode: 644
-        networks:
-            - cluster-network
+  rabbitmq-node-4:
+      <<: *rabbitmq
+      environment:
+        - RABBITMQ_NODE_TYPE=queue-disc
+        - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-4
+        - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+        - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+      ports:
+        - '15696:15692' # prometheus metrics
+      volumes:
+        - 'persistence-node-4:/rabbitmq'
+      networks:
+        - cluster-network
+      labels:
+        com.docker.stack.namespace: "rabbitmq-cluster"
+        com.docker.service.name: "rabbitmq-node-4"
+      deploy:
+        mode: replicated
+        replicas: 1
+        placement:
+          constraints: 
+            - node.labels.name == compute206
+        update_config:
+          parallelism: 1
+          delay: 60s
+        restart_policy:
+          condition: on-failure
+          max_attempts: 5
         labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "haproxy"
-        deploy:
-            mode: replicated
-            replicas: 2
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: on-failure
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "haproxy"
-    
-    filebeat:
-        image: docker.elastic.co/beats/filebeat:7.7.1
-        networks:
-            - cluster-network
-        configs:
-            - source: filebeat-config
-              target: /usr/share/filebeat/filebeat.yml
-              mode: 644
-        user: root
-        volumes:
-            - /var/lib/docker:/var/lib/docker:ro
-            - /var/run/docker.sock:/var/run/docker.sock
+          com.docker.stack.namespace: "rabbitmq-cluster"
+          com.docker.service.name: "rabbitmq-node-4"
+  
+  rabbitmq-node-5:
+      <<: *rabbitmq
+      environment:
+        - RABBITMQ_NODE_TYPE=queue-disc
+        - RABBITMQ_NODE_NAME=rabbit@rabbitmq-node-5
+        - RABBITMQ_CLUSTER_NODE_NAME=rabbit@rabbitmq-node-0
+        - RABBITMQ_ERL_COOKIE=s3cr3tc00ki3
+        # - RABBITMQ_LOGS=/opt/bitnami/rabbitmq/var/log/rabbitmq/rabbit.log
+      ports:
+        - '15697:15692' # prometheus metrics
+      volumes:
+        - 'persistence-node-5:/rabbitmq'
+      networks:
+        - cluster-network
+      labels:
+        com.docker.stack.namespace: "rabbitmq-cluster"
+        com.docker.service.name: "rabbitmq-node-5"
+      deploy:
+        mode: replicated
+        replicas: 1
+        placement:
+          constraints: 
+            - node.labels.name == compute207
+        update_config:
+          parallelism: 1
+          delay: 60s
+        restart_policy:
+          condition: on-failure
+          max_attempts: 5
         labels:
-            com.docker.stack.namespace: "rabbitmq-cluster"
-            com.docker.service.name: "filebeat"
-        deploy:
-            mode: replicated
-            update_config:
-                parallelism: 1
-                delay: 60s
-            restart_policy:
-                condition: none
-                max_attempts: 5
-            labels:
-                com.docker.stack.namespace: "rabbitmq-cluster"
-                com.docker.service.name: "filebeat"
+          com.docker.stack.namespace: "rabbitmq-cluster"
+          com.docker.service.name: "rabbitmq-node-5"
+
+  haproxy:
+    # image: jpbjesus/haproxy
+    image: jpbjesus/haproxy-rsyslog
+    ports: 
+      - '5672:5672'
+      - '1936:1936'
+    configs:
+      - source: haproxy-config
+        target: /usr/local/etc/haproxy/haproxy.cfg
+        mode: 644
+    networks:
+      - cluster-network
+    labels:
+      com.docker.stack.namespace: "rabbitmq-cluster"
+      com.docker.service.name: "haproxy"
+    deploy:
+      mode: replicated
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "rabbitmq-cluster"
+        com.docker.service.name: "haproxy"
+  
+  node-exporter-0:
+    image: prom/node-exporter:latest
+    ports:
+      - '9100:9100'
+    networks:
+      - cluster-network
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'		
+    labels:
+      com.docker.stack.namespace: "node-exporter"
+      com.docker.service.name: "node-exporter-0"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute202
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "node-exporter"
+        com.docker.service.name: "node-exporter-0" 	   
+
+  node-exporter-1:
+    image: prom/node-exporter:latest
+    ports:
+      - '9101:9100'
+    networks:
+      - cluster-network
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'		
+    labels:
+      com.docker.stack.namespace: "node-exporter"
+      com.docker.service.name: "node-exporter-1"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute203
+      resources:
+        limits:
+            cpus: '0.10'
+            memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "node-exporter"
+        com.docker.service.name: "node-exporter-1" 	 
+
+  node-exporter-2:
+    image: prom/node-exporter:latest
+    ports:
+      - '9102:9100'
+    networks:
+      - cluster-network
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'		
+    labels:
+      com.docker.stack.namespace: "node-exporter"
+      com.docker.service.name: "node-exporter-2"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute204
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "node-exporter"
+        com.docker.service.name: "node-exporter-2" 	 
+        
+  node-exporter-3:
+    image: prom/node-exporter:latest
+    ports:
+      - '9103:9100'
+    networks:
+      - cluster-network
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'		
+    labels:
+      com.docker.stack.namespace: "node-exporter"
+      com.docker.service.name: "node-exporter-3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute205
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "node-exporter"
+        com.docker.service.name: "node-exporter-3" 	 
+  
+  node-exporter-4:
+    image: prom/node-exporter:latest
+    ports:
+      - '9104:9100'
+    networks:
+      - cluster-network
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'		
+    labels:
+      com.docker.stack.namespace: "node-exporter"
+      com.docker.service.name: "node-exporter-4"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute206
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "node-exporter"
+        com.docker.service.name: "node-exporter-4"
+  
+  node-exporter-5:
+    image: prom/node-exporter:latest
+    ports:
+      - '9105:9100'
+    networks:
+      - cluster-network
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - '/proc:/host/proc:ro'
+      - '/sys:/host/sys:ro'
+      - '/:/rootfs:ro'		
+    labels:
+      com.docker.stack.namespace: "node-exporter"
+      com.docker.service.name: "node-exporter-5"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute207
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "node-exporter"
+        com.docker.service.name: "node-exporter-5" 	 
     
-    # cadvisor:
-    #     image: gcr.io/google-containers/cadvisor:latest
-    #     ports:
-    #         - '8081:8080'
-    #     networks:
-    #         - cluster-network
-    #     volumes:
-    #         - '/:/rootfs:ro' 
-    #         - '/var/run:/var/run:ro' 
-    #         - '/sys:/sys:ro' 
-    #         - '/var/lib/docker/:/var/lib/docker:ro' 
-    #         - '/dev/disk/:/dev/disk:ro'
-    #     labels:
-    #         com.docker.stack.namespace: "rabbitmq-cluster"
-    #         com.docker.service.name: "cadvisor"
-    #     deploy:
-    #         mode: global
-    #         update_config:
-    #             parallelism: 1
-    #             delay: 60s
-    #         restart_policy:
-    #             condition: on-failure
-    #             max_attempts: 5
-    #         labels:
-    #             com.docker.stack.namespace: "rabbitmq-cluster"
-    #             com.docker.service.name: "cadvisor"
-            
-    # node-exporter:
-    #     image: prom/node-exporter:latest
-    #     ports:
-    #         - '9100:9100'
-    #     networks:
-    #         - cluster-network
-    #     command:
-    #         - '--path.procfs=/host/proc'
-    #         - '--path.rootfs=/rootfs'
-    #         - '--path.sysfs=/host/sys'
-    #         - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
-    #     volumes:
-    #         - '/proc:/host/proc:ro'
-    #         - '/sys:/host/sys:ro'
-    #         - '/:/rootfs:ro'		
-    #     labels:
-    #         com.docker.stack.namespace: "rabbitmq-cluster"
-    #         com.docker.service.name: "node-exporter"
-    #     deploy:
-    #         mode: global
-    #         resources:
-    #             limits:
-    #                 cpus: '0.10'
-    #                 memory: 32M           
-    #         update_config:
-    #             parallelism: 1
-    #             delay: 60s
-    #         restart_policy:
-    #             condition: on-failure
-    #             max_attempts: 5
-    #         labels:
-    #             com.docker.stack.namespace: "rabbitmq-cluster"
-    #             com.docker.service.name: "node-exporter" 	   
+  # cadvisor:
+  #   image: gcr.io/google-containers/cadvisor:latest
+  #   ports:
+  #     - '8080:8080'
+  #   volumes:
+  #     - '/:/rootfs:ro' 
+  #     - '/var/run:/var/run:ro' 
+  #     - '/sys:/sys:ro' 
+  #     - '/var/lib/docker/:/var/lib/docker:ro' 
+  #     - '/dev/disk/:/dev/disk:ro'
+  #   labels:
+  #     com.docker.stack.namespace: "cadvisor"
+  #     com.docker.service.name: "cadvisor"
+  #   deploy:
+  #     mode: global
+  #     resources:
+  #       limits:
+  #         cpus: '0.10'
+  #         memory: 32M
+  #     update_config:
+  #       parallelism: 1
+  #       delay: 60s
+  #     restart_policy:
+  #       condition: on-failure
+  #       max_attempts: 5
+  #     labels:
+  #       com.docker.stack.namespace: "cadvisor"
+  #       com.docker.service.name: "cadvisor"

@@ -68,7 +68,3 @@ groups:
       annotations:
         summary: "HIGH MEMORY USAGE WARNING: TASK {{ $labels.container_label_com_docker_swarm_task_name }} on {{ $labels.instance }}"
         description: "{{ $labels.container_label_com_docker_swarm_service_name }} is eating up a LOT of memory. Memory consumption of {{ $labels.container_label_com_docker_swarm_service_name }} is at {{ humanize $value}}."
-
-
-     
-

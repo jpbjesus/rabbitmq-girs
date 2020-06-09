@@ -1,7 +1,20 @@
-filebeat.inputs:
-  - type: container
-    paths:
-        - /var/lib/docker/containers/*/*.log
+# filebeat.inputs:
+#   - type: container
+#     paths:
+#         - /var/lib/docker/containers/*/*.log
+
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      templates:
+        - condition:
+            contains:
+                docker.container.labels.com.docker.stack.namespace: "rabbitmq-cluster"
+          config:
+            - type: container
+              paths:
+                    - /var/lib/docker/containers/${data.docker.container.id}/*.log
+              exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
 processors:
     - add_docker_metadata:
         host: 'unix:///var/run/docker.sock'
@@ -15,3 +28,33 @@ output.elasticsearch:
         - index: 'filebeat-%{[agent.version]}-%{+yyyy.MM.dd}'
 logging.json: true
 logging.metrics.enabled: false
+
+
+
+    # filebeat:
+    #     image: docker.elastic.co/beats/filebeat:7.7.1
+    #     networks:
+    #         - cluster-network
+    #     configs:
+    #         - source: filebeat-config
+    #           target: /usr/share/filebeat/filebeat.yml
+    #           mode: 644
+    #     user: root
+    #     volumes:
+    #         - /var/lib/docker:/var/lib/docker:ro
+    #         - /var/run/docker.sock:/var/run/docker.sock
+    #     labels:
+    #         com.docker.stack.namespace: "rabbitmq-logging"
+    #         com.docker.service.name: "filebeat"
+    #     deploy:
+    #         mode: replicated
+    #         replicas: 1
+    #         update_config:
+    #             parallelism: 1
+    #             delay: 60s
+    #         restart_policy:
+    #             condition: none
+    #             max_attempts: 5
+    #         labels:
+    #             com.docker.stack.namespace: "rabbitmq-logging"
+    #             com.docker.service.name: "filebeat"

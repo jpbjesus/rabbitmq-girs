@@ -17,7 +17,7 @@ services:
     prometheus:
         image: prom/prometheus:latest
         ports:
-            - '8090:9090'
+            - '9s090:9090'
         networks:
             - cluster-network
         configs:
@@ -46,7 +46,7 @@ services:
     alertmanager:
         image: prom/alertmanager:latest
         ports:
-            - '8093:9093'   
+            - '9093:9093'   
         deploy:
             replicas: 1
         configs:
@@ -74,7 +74,7 @@ services:
     grafana:
         image: jpbjesus/grafana:latest
         ports:
-            - '3030:3000'
+            - '3000:3000'
         networks:
             - cluster-network
         environment:

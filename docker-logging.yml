@@ -55,3 +55,24 @@ services:
             labels:
                 com.docker.stack.namespace: "rmq-logging"
                 com.docker.service.name: "kibana"
+
+    # logstash:
+    #     image: docker.elastic.co/logstash/logstash:7.7.1
+    #     networks:
+    #         - cluster-network
+    #     ports:
+    #         - ':'
+    #     labels:
+    #         com.docker.stack.namespace: "rmq-logging"
+    #         com.docker.service.name: "logstash"
+    #     deploy:
+    #         mode: replicated
+    #         update_config:
+    #             parallelism: 1
+    #             delay: 60s
+    #         restart_policy:
+    #             condition: none
+    #             max_attempts: 5
+    #         labels:
+    #             com.docker.stack.namespace: "rmq-logging"
+    #             com.docker.service.name: "logstash"

@@ -17,7 +17,7 @@ services:
     prometheus:
         image: prom/prometheus:latest
         ports:
-            - '9s090:9090'
+            - '9090:9090'
         networks:
             - cluster-network
         configs:

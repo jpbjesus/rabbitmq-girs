@@ -8,6 +8,10 @@ networks:
 volumes:
     elasticsearch_data:
 
+configs:
+  logstash-config:
+      file: ./elk/logstash/logstash.conf
+
 services:
     elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch:7.7.1
@@ -56,35 +60,14 @@ services:
                 com.docker.stack.namespace: "rmq-logging"
                 com.docker.service.name: "kibana"
 
-    # logstash:
-    #     image: docker.elastic.co/logstash/logstash:7.7.1
-    #     networks:
-    #         - cluster-network
-    #     ports:
-    #         - '5044:5044'
-    #     labels:
-    #         com.docker.stack.namespace: "rmq-logging"
-    #         com.docker.service.name: "logstash"
-    #     deploy:
-    #         mode: replicated
-    #         update_config:
-    #             parallelism: 1
-    #             delay: 60s
-    #         restart_policy:
-    #             condition: none
-    #             max_attempts: 5
-    #         labels:
-    #             com.docker.stack.namespace: "rmq-logging"
-    #             com.docker.service.name: "logstash"
-
     logstash:
         image: docker.elastic.co/logstash/logstash:7.7.1
-        ports:
-            - "12201:12201/udp"         
-            - "8080:8082"
         networks:
             - cluster-network
-        command: -e "input { gelf {} } output { elasticsearch { hosts => ['elasticsearch']} stdout {} }"
+        configs:
+            - source: logstash-config
+              target: /etc/logstash/conf.d/logstash.conf
+              mode: 644
         labels:
             com.docker.stack.namespace: "rmq-logging"
             com.docker.service.name: "logstash"

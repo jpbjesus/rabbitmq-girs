@@ -33,8 +33,6 @@ configs:
       file: ./haproxy/haproxy.cfg
   rabbitmq-config:
       file: ./rabbitmq/rabbitmq.config
-  # filebeat-config:
-  #     file: ./filebeat.yml
 
 volumes:
   persistence-node-0:
@@ -506,32 +504,3 @@ services:
       labels:
         com.docker.stack.namespace: "node-exporter"
         com.docker.service.name: "node-exporter-5" 	 
-    
-  # cadvisor:
-  #   image: gcr.io/google-containers/cadvisor:latest
-  #   ports:
-  #     - '8080:8080'
-  #   volumes:
-  #     - '/:/rootfs:ro' 
-  #     - '/var/run:/var/run:ro' 
-  #     - '/sys:/sys:ro' 
-  #     - '/var/lib/docker/:/var/lib/docker:ro' 
-  #     - '/dev/disk/:/dev/disk:ro'
-  #   labels:
-  #     com.docker.stack.namespace: "cadvisor"
-  #     com.docker.service.name: "cadvisor"
-  #   deploy:
-  #     mode: global
-  #     resources:
-  #       limits:
-  #         cpus: '0.10'
-  #         memory: 32M
-  #     update_config:
-  #       parallelism: 1
-  #       delay: 60s
-  #     restart_policy:
-  #       condition: on-failure
-  #       max_attempts: 5
-  #     labels:
-  #       com.docker.stack.namespace: "cadvisor"
-  #       com.docker.service.name: "cadvisor"

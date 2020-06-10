@@ -1,0 +1,217 @@
+version: '3.8'
+
+networks:
+  cluster-network:
+    external: true
+    name: cluster-network
+
+services:
+  cadvisor-0:
+    image: gcr.io/google-containers/cadvisor:latest
+    ports:
+      - '18080:8080'
+    networks:
+        - cluster-network
+    volumes:
+      - '/:/rootfs:ro' 
+      - '/var/run:/var/run:ro' 
+      - '/sys:/sys:ro' 
+      - '/var/lib/docker/:/var/lib/docker:ro' 
+      - '/dev/disk/:/dev/disk:ro'
+    labels:
+      com.docker.stack.namespace: "cadvisor"
+      com.docker.service.name: "cadvisor-0"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute202
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "cadvisor"
+        com.docker.service.name: "cadvisor-0"
+  
+  cadvisor-1:
+    image: gcr.io/google-containers/cadvisor:latest
+    ports:
+      - '18081:8080'
+    networks:
+        - cluster-network
+    volumes:
+      - '/:/rootfs:ro' 
+      - '/var/run:/var/run:ro' 
+      - '/sys:/sys:ro' 
+      - '/var/lib/docker/:/var/lib/docker:ro' 
+      - '/dev/disk/:/dev/disk:ro'
+    labels:
+      com.docker.stack.namespace: "cadvisor"
+      com.docker.service.name: "cadvisor-1"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute203
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "cadvisor"
+        com.docker.service.name: "cadvisor-1"
+  
+  cadvisor-2:
+    image: gcr.io/google-containers/cadvisor:latest
+    ports:
+      - '18082:8080'
+    networks:
+        - cluster-network
+    volumes:
+      - '/:/rootfs:ro' 
+      - '/var/run:/var/run:ro' 
+      - '/sys:/sys:ro' 
+      - '/var/lib/docker/:/var/lib/docker:ro' 
+      - '/dev/disk/:/dev/disk:ro'
+    labels:
+      com.docker.stack.namespace: "cadvisor"
+      com.docker.service.name: "cadvisor-2"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute204
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "cadvisor"
+        com.docker.service.name: "cadvisor-2"
+
+  cadvisor-3:
+    image: gcr.io/google-containers/cadvisor:latest
+    ports:
+      - '18083:8080'
+    networks:
+        - cluster-network
+    volumes:
+      - '/:/rootfs:ro' 
+      - '/var/run:/var/run:ro' 
+      - '/sys:/sys:ro' 
+      - '/var/lib/docker/:/var/lib/docker:ro' 
+      - '/dev/disk/:/dev/disk:ro'
+    labels:
+      com.docker.stack.namespace: "cadvisor"
+      com.docker.service.name: "cadvisor-3"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute205
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "cadvisor"
+        com.docker.service.name: "cadvisor-3"
+  
+  cadvisor-4:
+    image: gcr.io/google-containers/cadvisor:latest
+    ports:
+      - '18084:8080'
+    networks:
+        - cluster-network
+    volumes:
+      - '/:/rootfs:ro' 
+      - '/var/run:/var/run:ro' 
+      - '/sys:/sys:ro' 
+      - '/var/lib/docker/:/var/lib/docker:ro' 
+      - '/dev/disk/:/dev/disk:ro'
+    labels:
+      com.docker.stack.namespace: "cadvisor"
+      com.docker.service.name: "cadvisor-4"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute206
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "cadvisor"
+        com.docker.service.name: "cadvisor-4"
+
+  cadvisor-5:
+    image: gcr.io/google-containers/cadvisor:latest
+    ports:
+      - '18085:8080'
+    networks:
+        - cluster-network
+    volumes:
+      - '/:/rootfs:ro' 
+      - '/var/run:/var/run:ro' 
+      - '/sys:/sys:ro' 
+      - '/var/lib/docker/:/var/lib/docker:ro' 
+      - '/dev/disk/:/dev/disk:ro'
+    labels:
+      com.docker.stack.namespace: "cadvisor"
+      com.docker.service.name: "cadvisor-5"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute207
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 32M
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "cadvisor"
+        com.docker.service.name: "cadvisor-5"

@@ -80,11 +80,11 @@ scrape_configs:
         labels:
           instance: 'node-exporter-2'
       - targets: [ '10.2.0.1:9103' ]
-      labels:
-        instance: 'node-exporter-3'
+        labels:
+          instance: 'node-exporter-3'
       - targets: [ '10.2.0.1:9104' ]
-      labels:
-        instance: 'node-exporter-4'
+        labels:
+          instance: 'node-exporter-4'
       - targets: [ '10.2.0.1:9105' ]
         labels:
           instance: 'node-exporter-5'

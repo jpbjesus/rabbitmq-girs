@@ -29,41 +29,63 @@ scrape_configs:
       - targets: ['localhost:9090']
   - job_name: 'rabbitmq-server'
     static_configs:
-      - targets:
-          # - 'rabbitmq-node-0:15692'
-          # - 'rabbitmq-node-1:15692'
-          # - 'rabbitmq-node-2:15692'
-          # - 'rabbitmq-node-3:15692'
-          # - 'rabbitmq-node-4:15692'
-          # - 'rabbitmq-node-5:15692'
-          - '10.2.0.1:15692'
-          - '10.2.0.1:15693'
-          - '10.2.0.1:15694'
-          - '10.2.0.1:15695'
-          - '10.2.0.1:15696'
-          - '10.2.0.1:15697'
-  - job_name: 'rabbitmq-perf-test'
-    static_configs:
-      - targets:
-          - 'basic-get:8080'
-          - 'basic-get-auto:8080'
-          - 'greedy-consumer:8080'
-          - 'publisher-confirms:8080'
-          - 'slow-consumer-persistent:8080'
-          # - 'nack:8080'
-          - 'unroutable-return:8080'
-          - 'unroutable-drop:8080'
+      # - 'rabbitmq-node-0:15692'
+      # - 'rabbitmq-node-1:15692'
+      # - 'rabbitmq-node-2:15692'
+      # - 'rabbitmq-node-3:15692'
+      # - 'rabbitmq-node-4:15692'
+      # - 'rabbitmq-node-5:15692'
+      - targets: [ '10.2.0.1:15692' ]
+        labels:
+          instance: 'rabbitmq-node-0'
+      - targets: [ '10.2.0.1:15693' ]
+        labels:
+          instance: 'rabbitmq-node-1'
+      - targets: [ '10.2.0.1:15694' ]
+        labels:
+          instance: 'rabbitmq-node-2'
+      - targets: [ '10.2.0.1:15695' ]
+        labels:
+          instance: 'rabbitmq-node-3'
+      - targets: [ '10.2.0.1:15696' ]
+        labels:
+          instance: 'rabbitmq-node-4'
+      - targets: [ '10.2.0.1:15697' ]
+        labels:
+          instance: 'rabbitmq-node-5'
+  # - job_name: 'rabbitmq-perf-test'
+  #   static_configs:
+  #     - targets:
+  #         - 'basic-get:8080'
+  #         - 'basic-get-auto:8080'
+  #         - 'greedy-consumer:8080'
+  #         - 'publisher-confirms:8080'
+  #         - 'slow-consumer-persistent:8080'
+  #         # - 'nack:8080'
+  #         - 'unroutable-return:8080'
+  #         - 'unroutable-drop:8080'
   - job_name: 'cadvisor'
     static_configs:
-      - targets: ['10.2.0.1:8080']
+      - targets: ['10.2.0.1:18080']
       # - targets: ['cadvisor:8081']
   - job_name: 'node-exporter'
     static_configs:
-      - targets: 
-        - '10.2.0.1:9100'
-        - '10.2.0.1:9101'
-        - '10.2.0.1:9102'
-        - '10.2.0.1:9103'
-        - '10.2.0.1:9104'
-        - '10.2.0.1:9105'
+      - targets: [ '10.2.0.1:9100' ]
+        labels:
+          instance: 'node-exporter-0'
+      - targets: [ '10.2.0.1:9101' ]
+        labels:
+          instance: 'node-exporter-1'
+      - targets: [ '10.2.0.1:9102' ]
+        labels:
+          instance: 'node-exporter-2'
+      - targets: [ '10.2.0.1:9103' ]
+      labels:
+        instance: 'node-exporter-3'
+      - targets: [ '10.2.0.1:9104' ]
+      labels:
+        instance: 'node-exporter-4'
+      - targets: [ '10.2.0.1:9105' ]
+        labels:
+          instance: 'node-exporter-5'
       # - targets: ['node-exporter:9100']

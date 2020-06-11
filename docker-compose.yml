@@ -30,9 +30,11 @@ networks:
 
 configs:
   haproxy-config:
-      file: ./haproxy/haproxy.cfg
+    file: ./haproxy/haproxy.cfg
   rabbitmq-config:
-      file: ./rabbitmq/rabbitmq.config
+    file: ./rabbitmq/rabbitmq.config
+  filebeat-config:
+    file: ./elk/filebeat/filebeat.yml
 
 volumes:
   persistence-node-0:
@@ -503,4 +505,63 @@ services:
         max_attempts: 5
       labels:
         com.docker.stack.namespace: "node-exporter"
-        com.docker.service.name: "node-exporter-5" 	 
+        com.docker.service.name: "node-exporter-5"
+
+  logspout:
+    image: gliderlabs/logspout:latest
+    environment: 
+      - SYSLOG_FORMAT=rfc3164
+    command: 'syslog://logstash:51415'
+    volumes:
+      - '/var/run/docker.sock:/tmp/docker.sock'
+    labels:
+      com.docker.stack.namespace: "rabbitmq-logging"
+      com.docker.service.name: "logspout"
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: 
+          - node.labels.name == compute202
+      update_config:
+        parallelism: 1
+        delay: 60s
+      restart_policy:
+        condition: none
+        max_attempts: 5
+      labels:
+        com.docker.stack.namespace: "rabbitmq-logging"
+        com.docker.service.name: "logspout"
+
+
+  
+  # filebeat:
+  #   image: docker.elastic.co/beats/filebeat:7.7.1
+  #   networks:
+  #       - cluster-network
+  #   configs:
+  #       - source: filebeat-config
+  #         target: /usr/share/filebeat/filebeat.yml
+  #         mode: 644
+  #   user: root
+  #   volumes:
+  #       - /var/lib/docker:/var/lib/docker:ro
+  #       - /var/run/docker.sock:/var/run/docker.sock
+  #   labels:
+  #       com.docker.stack.namespace: "rabbitmq-logging"
+  #       com.docker.service.name: "filebeat"
+  #   deploy:
+  #       mode: replicated
+  #       replicas: 1
+  #       placement:
+  #         constraints: 
+  #           - node.labels.name == compute201
+  #       update_config:
+  #           parallelism: 1
+  #           delay: 60s
+  #       restart_policy:
+  #           condition: none
+  #           max_attempts: 5
+  #       labels:
+  #           com.docker.stack.namespace: "rabbitmq-logging"
+  #           com.docker.service.name: "filebeat"

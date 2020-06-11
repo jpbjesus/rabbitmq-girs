@@ -68,7 +68,7 @@ services:
             - '51415:51415'
         configs:
             - source: logstash-config
-              target: /etc/logstash/conf.d/logstash.conf
+              target: /usr/share/logstash/pipeline/logstash.conf
               mode: 644
         labels:
             com.docker.stack.namespace: "rmq-logging"

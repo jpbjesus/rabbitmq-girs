@@ -65,7 +65,7 @@ services:
         networks:
             - cluster-network
         ports:
-            - '5000:5000'
+            - '5000:5000/udp'
         configs:
             - source: logstash-config
               target: /etc/logstash/conf.d/logstash.conf

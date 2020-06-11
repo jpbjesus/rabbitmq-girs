@@ -64,6 +64,8 @@ services:
         image: docker.elastic.co/logstash/logstash:7.7.1
         networks:
             - cluster-network
+        ports:
+            - '51415:51415'
         configs:
             - source: logstash-config
               target: /etc/logstash/conf.d/logstash.conf

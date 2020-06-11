@@ -509,9 +509,11 @@ services:
 
   logspout:
     image: gliderlabs/logspout:latest
+    networks:
+      - cluster-network
     environment: 
       - SYSLOG_FORMAT=rfc3164
-    command: 'syslog://logstash:51415'
+    command: 'syslog://10.5.0.6:51415'
     volumes:
       - '/var/run/docker.sock:/tmp/docker.sock'
     labels:

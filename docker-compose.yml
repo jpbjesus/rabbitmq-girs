@@ -513,7 +513,7 @@ services:
       - cluster-network
     environment: 
       - SYSLOG_FORMAT=rfc3164
-    command: 'syslog+udp://10.5.0.6:51415'
+    command: 'syslog://10.5.0.6:51415'
     volumes:
       - '/var/run/docker.sock:/tmp/docker.sock'
     labels:
@@ -535,8 +535,6 @@ services:
         com.docker.stack.namespace: "rabbitmq-logging"
         com.docker.service.name: "logspout"
 
-
-  
   # filebeat:
   #   image: docker.elastic.co/beats/filebeat:7.7.1
   #   networks:

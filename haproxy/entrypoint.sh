@@ -36,6 +36,8 @@ stop_rsyslog() {
 start_rsyslog
 start_haproxy
 
+filebeat-7.7.1-linux-x86_64/filebeat -c filebeat-7.7.1-linux-x86_64/filebeat.yml >/dev/null 2>&1
+
 sleep 10
 
 while true; do
@@ -46,7 +48,7 @@ while true; do
         start_rsyslog
     fi
 
-    tail -f /var/log/haproxy*.log &
+    # tail -f /var/log/haproxy*.log &
 
     if [ ! -n "$h_pid" ]; then
         echo "[ERROR] HAProxy crashed, shutdown all process, exit 1"
